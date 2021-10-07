@@ -195,7 +195,6 @@ public class TaskParser {
      */
     Task buildQueryTask(String input) throws ParseException {
       text = input;
-      //      Query filter = parseFilter();
       facets = parseFacets();
       List<String> drillDowns = parseDrillDowns();
       doStoredLoadsTask = TaskParser.this.doStoredLoads;
@@ -206,7 +205,7 @@ public class TaskParser {
       int msm = parseMinShouldMatch();
       Query query = buildQuery(taskType, text, msm);
       Query query2 = applyDrillDowns(query, drillDowns);
-      //      Query query3 = applyFilter(query2, filter);
+
       return new SearchTask(
           category,
           query2,

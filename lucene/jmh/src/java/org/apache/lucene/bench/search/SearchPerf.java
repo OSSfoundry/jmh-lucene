@@ -104,6 +104,8 @@ import org.openjdk.jmh.infra.BenchmarkParams;
 @SuppressForbidden(reason = "JMH uses std out for user output")
 public class SearchPerf {
 
+  private static final boolean VERBOSE = false;
+
   /** Instantiates a new Json faceting. */
   public SearchPerf() {}
 
@@ -150,119 +152,82 @@ public class SearchPerf {
   @State(Scope.Benchmark)
   @SuppressForbidden(reason = "JMH uses std out for user output")
   public static class BenchState {
-
-    /** The Index path. */
-    @Param({
-      "/mnt/d1/lucene-bench/indices/wikimedium5m.lucene_baseline.facets.taxonomy:Date.taxonomy:Month.taxonomy:DayOfYear.sortedset:Month.sortedset:DayOfYear.Lucene90.Lucene90.nd5M/index"
-    })
-    String indexPath;
+    // Benchmark (analyzer) (cloneDocs)  (commit) (dirImpl)  (dpspt)  (facets)  (fn) (hiliteimpl)
+    // (idpf) (index)  (ithreads) (ldfile)  (mode)  (nrt)  (pss)  (pklu)  (pf)  (reopens)
+    // (sthreads) (sim)  (storebdy)  (sloads) (tasks)  (topN)  (tvsBody)  (useCFS)  (vectorFile)
+    /** The constant TAXONOMY. */
+    public static final String TAXONOMY = "taxonomy";
 
     /** The Dir. */
     @Param({"MMapDirectory"})
-    String dirImpl;
+    String dirimpl;
     /** The Field name. */
     @Param({"body"})
-    String fieldName;
-
+    String fld;
     /** The Analyzer. */
     @Param({"StandardAnalyzer"})
     String analyzer;
-    /** The Tasks file. */
-    @Param({"/mnt/d1/lucene-bench/data/wikimedium500.tasks"})
-    String tasksFile;
     /** The Search thread count. */
     @Param({"2"})
-    int searchThreadCount;
-    /** The Print heap. */
-    @Param({"true"})
-    boolean printHeap;
+    int sthrds;
     /** The Do pk lookup. */
     @Param({"false"})
-    boolean doPKLookup;
+    boolean pklu;
     /** The Do concurrent searches. */
     @Param({"true"})
-    boolean doConcurrentSearches;
+    boolean pss;
     /** The Top n. */
     @Param({"10"})
-    int topN;
+    int topn;
     /** The Do stored loads. */
     @Param({"false"})
-    boolean doStoredLoads;
-
-    /** The Random seed. */
-    // Used to shuffle the random subset of tasks:
-    @Param({"0"})
-    long randomSeed;
-
+    boolean storelds;
     /** The Similarity. */
     // TODO: this could be way better.
     @Param({"BM25Similarity"})
-    String similarity;
-
+    String sim;
     /** The Commit. */
     @Param({"multi"})
     String commit;
     /** The Hilite. */
     @Param({"FastVectorHighlighter"})
-    String hiliteImpl;
-
-    /** The Log file. */
-    @Param({"search.log"})
-    String logFile;
-
-    /** The Verify check sum. */
-    @Param({"false"})
-    boolean verifyCheckSum;
-
-    /** The Recache filter deletes. */
-    @Param({"false"})
-    boolean recacheFilterDeletes;
-
+    String hlimpl;
     /** The Vector file. */
     @Param({""})
-    String vectorFile;
-
+    String vecfile;
     /** The Index thread count. */
     @Param({"1"})
-    int indexThreadCount;
-    /** The Line docs file. */
-    @Param({"/mnt/d1/lucene-bench/data/enwiki-20120502-lines-1k.txt"})
-    String lineDocsFile;
+    int ithrds;
     /** The Docs per sec per thread. */
     @Param({"10"})
-    float docsPerSecPerThread;
+    float dpspt;
     /** The Reopen every sec. */
     @Param({"5"})
-    float reopenEverySec;
+    float reopnsec;
     /** The Store body. */
     @Param({"false"})
-    boolean storeBody;
+    boolean storebdy;
     /** The Tvs body. */
     @Param({"false"})
-    boolean tvsBody;
+    boolean tvsbdy;
     /** The Use cfs. */
     @Param({"false"})
-    boolean useCFS;
+    boolean cfs;
     /** The Default postings format. */
     @Param({"Lucene90"})
-    String defaultPostingsFormat;
+    String postfmt;
     /** The Id field postings format. */
     @Param({"Lucene90"})
-    String idFieldPostingsFormat;
-    /** The Verbose. */
-    @Param({"false"})
-    boolean verbose;
+    String idpostfmt;
     /** The Clone docs. */
     @Param({"false"})
-    boolean cloneDocs;
+    boolean clonedocs;
     /** The Mode. */
     @Param({"update"})
     String mode;
-
     /** The Facets. */
-    @Param({"taxonomy"})
+    @Param({TAXONOMY})
     String facets;
-
     /** The Nrt. */
     @Param({"true"})
     boolean nrt;
@@ -295,28 +260,22 @@ public class SearchPerf {
     public void setup(BenchmarkParams benchmarkParams) throws Exception {
 
       Directory dir0;
-      //      final String dirPath = args.getString("-indexPath") + "/index";
-      //      final String dirImpl = args.getString("-dirImpl");
 
-      OpenDirectory od = OpenDirectory.get(dirImpl);
+      OpenDirectory od = OpenDirectory.get(dirimpl);
 
-      dir0 = od.open(Paths.get(indexPath));
+      String index = System.getProperty("index", "work/index");
+
+      String ldfile = System.getProperty("ldfile", "work/lines.txt");
+
+      String tasksFile = System.getProperty("tasksFile", "work/tasks.txt");
+
+      dir0 = od.open(Paths.get(index));
 
       // TODO: NativeUnixDir?
 
-      //      final String analyzer = args.getString("-analyzer");
-      //      final String tasksFile = args.getString("-taskSource");
-      //      final int searchThreadCount = args.getInt("-searchThreadCount");
-      //      final String fieldName = args.getString("-field");
-      //      final boolean printHeap = args.getFlag("-printHeap");
-      //      final boolean doPKLookup = args.getFlag("-pk");
-      //      final boolean doConcurrentSearches = args.getFlag("-concurrentSearches");
-      //      final int topN = args.getInt("-topN");
-      //      final boolean doStoredLoads = args.getFlag("-loadStoredFields");
-
       int cores = Runtime.getRuntime().availableProcessors();
 
-      if (doConcurrentSearches) {
+      if (pss) {
         executorService =
             new ThreadPoolExecutor(
                 cores,
@@ -334,99 +293,75 @@ public class SearchPerf {
         executorService = null;
       }
 
-      // Used to choose which random subset of tasks we will
-      // run, to generate the PKLookup tasks, and to generate
-      // any random pct filters:
-      //      final long staticRandomSeed = args.getLong("-staticSeed");
-      //
-      //      // Used to shuffle the random subset of tasks:
-      //      final long randomSeed = args.getLong("-seed");
-      //
-      //      // TODO: this could be way better.
-      //      final String similarity = args.getString("-similarity");
       // now reflect
       final Class<? extends Similarity> simClazz =
-          Class.forName("org.apache.lucene.search.similarities." + similarity)
+          Class.forName("org.apache.lucene.search.similarities." + sim)
               .asSubclass(Similarity.class);
-      final Similarity sim = simClazz.newInstance();
+      final Similarity similarity = simClazz.newInstance();
 
       System.out.println("Using dir impl " + dir0.getClass().getName());
       System.out.println("Analyzer " + analyzer);
-      System.out.println("Similarity " + similarity);
-      System.out.println("Search thread count " + searchThreadCount);
-      System.out.println("topN " + topN);
+      System.out.println("Similarity " + this.sim);
+      System.out.println("Search thread count " + sthrds);
+      System.out.println("topN " + topn);
       System.out.println("JVM " + (Constants.JRE_IS_64BIT ? "is" : "is not") + " 64bit");
       System.out.println("Pointer is " + RamUsageEstimator.NUM_BYTES_OBJECT_REF + " bytes");
-      System.out.println("Concurrent segment reads is " + doConcurrentSearches);
+      System.out.println("Concurrent segment reads is " + pss);
 
       final Analyzer a;
-      if (analyzer.equals("EnglishAnalyzer")) {
-        a = new EnglishAnalyzer();
-      } else if (analyzer.equals("ClassicAnalyzer")) {
-        a = new ClassicAnalyzer();
-      } else if (analyzer.equals("StandardAnalyzer")) {
-        a = new StandardAnalyzer();
-      } else if (analyzer.equals("StandardAnalyzerNoStopWords")) {
-        a = new StandardAnalyzer(CharArraySet.EMPTY_SET);
-      } else if (analyzer.equals("ShingleStandardAnalyzer")) {
-        a =
-            new ShingleAnalyzerWrapper(
-                new StandardAnalyzer(CharArraySet.EMPTY_SET),
-                2,
-                2,
-                ShingleFilter.DEFAULT_TOKEN_SEPARATOR,
-                true,
-                true,
-                ShingleFilter.DEFAULT_FILLER_TOKEN);
-      } else {
-        throw new RuntimeException("unknown analyzer " + analyzer);
+      switch (analyzer) {
+        case "EnglishAnalyzer":
+          a = new EnglishAnalyzer();
+          break;
+        case "ClassicAnalyzer":
+          a = new ClassicAnalyzer();
+          break;
+        case "StandardAnalyzer":
+          a = new StandardAnalyzer();
+          break;
+        case "StandardAnalyzerNoStopWords":
+          a = new StandardAnalyzer(CharArraySet.EMPTY_SET);
+          break;
+        case "ShingleStandardAnalyzer":
+          a =
+              new ShingleAnalyzerWrapper(
+                  new StandardAnalyzer(CharArraySet.EMPTY_SET),
+                  2,
+                  2,
+                  ShingleFilter.DEFAULT_TOKEN_SEPARATOR,
+                  true,
+                  true,
+                  ShingleFilter.DEFAULT_FILLER_TOKEN);
+          break;
+        default:
+          throw new RuntimeException("unknown analyzer " + analyzer);
       }
 
       final IndexWriter writer;
       final Directory dir;
 
-      //      final String commit = args.getString("-commit");
-      //      final String hiliteImpl = args.getString("-hiliteImpl");
-      //
-      //      final String logFile = args.getString("-log");
-
       final long tSearcherStart = System.currentTimeMillis();
 
-      //      final boolean verifyCheckSum = !args.getFlag("-skipVerifyChecksum");
-      //      final boolean recacheFilterDeletes = args.getFlag("-recacheFilterDeletes");
-      //      final String vectorFile;
-      if (vectorFile.isEmpty()) {
-        vectorFile = null;
+      if (vecfile.isEmpty()) {
+        vecfile = null;
       }
 
-      if (recacheFilterDeletes) {
-        throw new UnsupportedOperationException("recacheFilterDeletes was deprecated");
-      }
+      long randomSeed = Long.getLong("randomSeed", 0);
+      final Random random = new Random(randomSeed);
 
       if (nrt) {
         // TODO: get taxoReader working here too
-        // TODO: factor out & share this CL processing w/ Indexer
-        //        final int indexThreadCount = args.getInt("-indexThreadCount");
-        //        final String lineDocsFile = args.getString("-lineDocsFile");
-        //        final float docsPerSecPerThread = args.getFloat("-docsPerSecPerThread");
-        //        final float reopenEverySec = args.getFloat("-reopenEverySec");
-        //        final boolean storeBody = args.getFlag("-store");
-        //        final boolean tvsBody = args.getFlag("-tvs");
-        //        final boolean useCFS = args.getFlag("-cfs");
-        //        final String defaultPostingsFormat = args.getString("-postingsFormat");
-        //        final String idFieldPostingsFormat = args.getString("-idFieldPostingsFormat");
-        //        final boolean verbose = args.getFlag("-verbose");
-        //        final boolean cloneDocs = args.getFlag("-cloneDocs");
+
         final IndexThreads.Mode threadsMode =
             IndexThreads.Mode.valueOf(mode.toUpperCase(Locale.ROOT));
 
-        final long reopenEveryMS = (long) (1000 * reopenEverySec);
+        final long reopenEveryMS = (long) (1000 * reopnsec);
 
-        if (verbose) {
+        if (VERBOSE) {
           InfoStream.setDefault(new PrintStreamInfoStream(System.out));
         }
 
-        if (!dirImpl.equals("RAMExceptDirectPostingsDirectory")) {
+        if (!dirimpl.equals("RAMExceptDirectPostingsDirectory")) {
           System.out.println("Wrap NRTCachingDirectory");
           dir0 = new NRTCachingDirectory(dir0, 20, 400.0);
         }
@@ -446,7 +381,7 @@ public class SearchPerf {
           iwc.setIndexCommit(PerfUtils.findCommitPoint(commit, dir));
         }
 
-        ((TieredMergePolicy) iwc.getMergePolicy()).setNoCFSRatio(useCFS ? 1.0 : 0.0);
+        ((TieredMergePolicy) iwc.getMergePolicy()).setNoCFSRatio(cfs ? 1.0 : 0.0);
         // ((TieredMergePolicy) iwc.getMergePolicy()).setMaxMergedSegmentMB(1024);
         // ((TieredMergePolicy) iwc.getMergePolicy()).setReclaimDeletesWeight(3.0);
         // ((TieredMergePolicy) iwc.getMergePolicy()).setMaxMergeAtOnce(4);
@@ -455,8 +390,7 @@ public class SearchPerf {
             new Lucene90Codec() {
               @Override
               public PostingsFormat getPostingsFormatForField(String field) {
-                return PostingsFormat.forName(
-                    field.equals("id") ? idFieldPostingsFormat : defaultPostingsFormat);
+                return PostingsFormat.forName(field.equals("id") ? idpostfmt : postfmt);
               }
             };
         iwc.setCodec(codec);
@@ -475,7 +409,7 @@ public class SearchPerf {
                 // System.out.println("DO WARM: " + reader);
                 IndexSearcher s = createIndexSearcher(reader, executorService);
                 s.setQueryCache(null); // don't bench the cache
-                s.search(new TermQuery(new Term(fieldName, "united")), 10);
+                s.search(new TermQuery(new Term(fld, "united")), 10);
                 final long t1 = System.currentTimeMillis();
                 System.out.println(
                     "warm segment="
@@ -496,14 +430,15 @@ public class SearchPerf {
         boolean addDVFields =
             threadsMode == IndexThreads.Mode.BDV_UPDATE
                 || threadsMode == IndexThreads.Mode.NDV_UPDATE;
+
         LineFileDocs lineFileDocs =
             new LineFileDocs(
-                lineDocsFile,
+                ldfile,
                 false,
-                storeBody,
-                tvsBody,
+                storebdy,
+                tvsbdy,
                 false,
-                cloneDocs,
+                clonedocs,
                 null,
                 null,
                 null,
@@ -512,16 +447,16 @@ public class SearchPerf {
                 0);
         threads =
             new IndexThreads(
-                new Random(17),
+                random,
                 writer,
                 new AtomicBoolean(false),
                 lineFileDocs,
-                indexThreadCount,
+                ithrds,
                 -1,
                 false,
                 false,
                 threadsMode,
-                docsPerSecPerThread,
+                dpspt,
                 null,
                 -1.0,
                 -1);
@@ -535,12 +470,12 @@ public class SearchPerf {
                   public IndexSearcher newSearcher(IndexReader reader, IndexReader previous) {
                     IndexSearcher s = createIndexSearcher(reader, executorService);
                     s.setQueryCache(null); // don't bench the cache
-                    s.setSimilarity(sim);
+                    s.setSimilarity(similarity);
                     return s;
                   }
                 });
 
-        System.out.println("reopen every " + reopenEverySec);
+        System.out.println("reopen every " + reopnsec);
 
         reopenThread =
             new Thread() {
@@ -603,7 +538,7 @@ public class SearchPerf {
 
         IndexSearcher s = createIndexSearcher(reader, executorService);
         s.setQueryCache(null); // don't bench the cache
-        s.setSimilarity(sim);
+        s.setSimilarity(similarity);
         System.out.println(
             "maxDoc="
                 + reader.maxDoc()
@@ -648,7 +583,7 @@ public class SearchPerf {
           String[] dims = arg.split(";");
           String facetGroupField;
           String facetMethod;
-          if (dims[0].equals("taxonomy") || dims[0].equals("sortedset")) {
+          if (dims[0].equals(TAXONOMY) || dims[0].equals("sortedset")) {
             // method --> use the default facet field for this group
             facetGroupField = FacetsConfig.DEFAULT_INDEX_FIELD_NAME;
             facetMethod = dims[0];
@@ -660,8 +595,7 @@ public class SearchPerf {
                   "-facets: expected (taxonomy|sortedset):fieldName but got " + dims[0]);
             }
             facetMethod = dims[0].substring(0, i);
-            if (facetMethod.equals("taxonomy") == false
-                && facetMethod.equals("sortedset") == false) {
+            if (facetMethod.equals(TAXONOMY) == false && facetMethod.equals("sortedset") == false) {
               throw new IllegalArgumentException(
                   "-facets: expected (taxonomy|sortedset):fieldName but got " + dims[0]);
             }
@@ -670,12 +604,8 @@ public class SearchPerf {
           facetFields.add(facetGroupField);
           for (int i = 1; i < dims.length; i++) {
             int flag;
-            if (facetDimMethods.containsKey(dims[i])) {
-              flag = facetDimMethods.get(dims[i]);
-            } else {
-              flag = 0;
-            }
-            if (facetMethod.equals("taxonomy")) {
+            flag = facetDimMethods.getOrDefault(dims[i], 0);
+            if (facetMethod.equals(TAXONOMY)) {
               flag |= 1;
               facetsConfig.setIndexFieldName(dims[i] + ".taxonomy", facetGroupField + ".taxonomy");
             } else {
@@ -689,7 +619,7 @@ public class SearchPerf {
       }
 
       TaxonomyReader taxoReader;
-      Path taxoPath = Paths.get(indexPath, "facets");
+      Path taxoPath = Paths.get(index, "facets");
       Directory taxoDir = od.open(taxoPath);
       if (DirectoryReader.indexExists(taxoDir)) {
         taxoReader = new DirectoryTaxonomyReader(taxoDir);
@@ -698,29 +628,18 @@ public class SearchPerf {
         taxoReader = null;
       }
 
-      long staticRandomSeed = 0;
-      final Random staticRandom = new Random(staticRandomSeed);
-      // final Random random = new Random(randomSeed);
-
       final DirectSpellChecker spellChecker = new DirectSpellChecker();
       indexState =
-          new IndexState(
-              mgr, taxoReader, fieldName, spellChecker, hiliteImpl, facetsConfig, facetDimMethods);
+          new IndexState(mgr, taxoReader, fld, spellChecker, hlimpl, facetsConfig, facetDimMethods);
 
       final QueryParser queryParser = new QueryParser("body", a);
       TaskParser taskParser =
-          new TaskParser(
-              indexState, queryParser, fieldName, topN, staticRandom, vectorFile, doStoredLoads);
+          new TaskParser(indexState, queryParser, fld, topn, random, vecfile, storelds);
 
       // Load the tasks from a file:
-      final int taskRepeatCount = 1;
-      final int numTaskPerCat = 5;
-      tasks =
-          new LocalTaskSource(
-              indexState, taskParser, tasksFile, staticRandom, numTaskPerCat, doPKLookup);
-      System.out.println("Task repeat count " + taskRepeatCount);
+
+      tasks = new LocalTaskSource(indexState, taskParser, tasksFile, random, pklu);
       System.out.println("Tasks file " + tasksFile);
-      System.out.println("Num task per cat " + numTaskPerCat);
     }
 
     /**

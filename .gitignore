@@ -3,6 +3,7 @@
 /gradle.properties
 .gradle/
 build/
+work/
 
 # Ignore gradle wrapper jar.
 gradle/wrapper/gradle-wrapper.jar

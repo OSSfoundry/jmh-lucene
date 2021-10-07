@@ -41,7 +41,7 @@ import org.apache.lucene.util.SuppressForbidden;
 public class LocalTaskSource implements TaskSource {
 
   private final AtomicInteger nextTask = new AtomicInteger();
-  private final Map<String, List<Task>> tasks;
+  private final Map<String, List<Task>> catToTasks;
 
   /**
    * Instantiates a new Local task source.
@@ -49,8 +49,7 @@ public class LocalTaskSource implements TaskSource {
    * @param indexState the index state
    * @param taskParser the task parser
    * @param tasksFile the tasks file
-   * @param staticRandom the static random
-   * @param numTaskPerCat the num task per cat
+   * @param staticRandom the static randomhe num task per cat
    * @param doPKLookup the do pk lookup
    * @throws IOException the io exception
    * @throws ParseException the parse exception
@@ -60,7 +59,6 @@ public class LocalTaskSource implements TaskSource {
       TaskParser taskParser,
       String tasksFile,
       Random staticRandom,
-      int numTaskPerCat,
       boolean doPKLookup)
       throws IOException, ParseException {
 
@@ -68,8 +66,6 @@ public class LocalTaskSource implements TaskSource {
 
     for (List<Task> tasks : loadedTasks.values()) {
       Collections.shuffle(tasks, staticRandom);
-      // FYI - not prunning
-      // final List<Task> prunedTasks = pruneTasks(tasks, numTaskPerCat);
     }
 
     final IndexSearcher searcher = indexState.mgr.acquire();
@@ -83,91 +79,34 @@ public class LocalTaskSource implements TaskSource {
     // Add PK tasks
     // System.out.println("WARNING: skip PK tasks");
     if (doPKLookup) {
-      final int numPKTasks = (int) Math.min(maxDoc / 6000., numTaskPerCat);
-      final Set<BytesRef> pkSeenIDs = new HashSet<BytesRef>();
-      // final Set<Integer> pkSeenIntIDs = new HashSet<Integer>();
+
       for (List<Task> tasks : loadedTasks.values()) {
+        final int numPKTasks = (int) Math.min(maxDoc / 6000., tasks.size());
         for (int idx = 0; idx < numPKTasks; idx++) {
+          final Set<BytesRef> pkSeenIDs = new HashSet<BytesRef>();
+          final Set<Integer> pkSeenIntIDs = new HashSet<Integer>();
           tasks.add(new PKLookupTask(maxDoc, staticRandom, 4000, pkSeenIDs, idx));
-          // prunedTasks.add(new PointsPKLookupTask(maxDoc, staticRandom, 4000, pkSeenIntIDs, idx));
+          tasks.add(new PointsPKLookupTask(maxDoc, staticRandom, 4000, pkSeenIntIDs, idx));
         }
       }
-      /*
-      final Set<BytesRef> pkSeenSingleIDs = new HashSet<BytesRef>();
-      for(int idx=0;idx<numPKTasks*100;idx++) {
-        prunedTasks.add(new SinglePKLookupTask(maxDoc, staticRandom, pkSeenSingleIDs, idx));
-      }
-      */
+
+      //      for (List<Task> tasks : loadedTasks.values()) {
+      //        final Set<BytesRef> pkSeenSingleIDs = new HashSet<BytesRef>();
+      //        for (int idx = 0; idx < numPKTasks * 100; idx++) {
+      //          tasks.add(new SinglePKLookupTask(maxDoc, staticRandom, pkSeenSingleIDs, idx));
+      //        }
+      //      }
     }
-    tasks = loadedTasks;
-    //    if (groupByCat) {
-    //      repeatTasksGrouped(prunedTasks, taskRepeatCount, random);
-    //    } else {
-    //      repeatTasksShuffled(prunedTasks, taskRepeatCount, random);
-    //    }
-    System.out.println("TASK LEN=" + tasks.size());
+    catToTasks = loadedTasks;
+    System.out.println("TASK LEN=" + catToTasks.size());
   }
-
-  //  private void repeatTasksShuffled(List<Task> someTasks, int taskRepeatCount, Random random) {
-  //    // Copy the pruned tasks multiple times, shuffling the order each time:
-  //    for(int iter = 0; iter < taskRepeatCount; iter++) {
-  //      Collections.shuffle(someTasks, random);
-  //      for(Task task : someTasks) {
-  //        tasks.add(task.clone());
-  //      }
-  //    }
-  //  }
-  //
-  //  private void repeatTasksGrouped(List<Task> someTasks, int taskRepeatCount, Random random) {
-  //    Map<String, List<Task>> tasksByCategory = new HashMap<>();
-  //    for (Task task : someTasks) {
-  //      String category = task.getCategory();
-  //      tasksByCategory.computeIfAbsent(category, c -> new ArrayList<>()).add(task);
-  //    }
-  //    for (String category : tasksByCategory.keySet()) {
-  //      List<Task> categoryTasks = tasksByCategory.get(category);
-  //      repeatTasksShuffled(categoryTasks, taskRepeatCount, random);
-  //    }
-  //  }
-  //
-  //  @Override
-  //  public Map<String, List<Task>> getAllTasks() {
-  //    return tasks;
-  //  }
-
-  // --Commented out by Inspection START (10/7/21, 12:37 AM):
-  //  private static List<Task> pruneTasks(List<Task> tasks, int numTaskPerCat) {
-  //    final Map<String, Integer> catCounts = new HashMap<String, Integer>();
-  //    final List<Task> newTasks = new ArrayList<Task>();
-  //    for (Task task : tasks) {
-  //      final String cat = task.getCategory();
-  //      Integer v = catCounts.get(cat);
-  //      int catCount;
-  //      if (v == null) {
-  //        catCount = 0;
-  //      } else {
-  //        catCount = v.intValue();
-  //      }
-  //
-  //      if (catCount >= numTaskPerCat) {
-  //        // System.out.println("skip task cat=" + cat);
-  //        continue;
-  //      }
-  //      catCount++;
-  //      catCounts.put(cat, catCount);
-  //      newTasks.add(task);
-  //    }
-  //
-  //    return newTasks;
-  //  }
-  // --Commented out by Inspection STOP (10/7/21, 12:37 AM)
 
   @Override
   public Task nextTask(String category) {
-    List<Task> catTasks = this.tasks.get(category);
+    List<Task> catTasks = this.catToTasks.get(category);
     if (catTasks == null) {
       throw new IllegalArgumentException(
-          "Category " + category + " not found in " + tasks.keySet());
+          "Category " + category + " not found in " + catToTasks.keySet());
     }
     int next = nextTask.getAndIncrement();
     if (next >= catTasks.size()) {
@@ -176,9 +115,6 @@ public class LocalTaskSource implements TaskSource {
     }
     return catTasks.get(next);
   }
-
-  //  @Override
-  //  public void taskDone() {}
 
   /**
    * Load tasks map.
