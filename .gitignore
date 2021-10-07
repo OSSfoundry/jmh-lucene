@@ -9,6 +9,7 @@ gradle/wrapper/gradle-wrapper.jar
 
 # IntelliJ IDEA
 /.idea/
+/.run
 #    IntelliJ creates this folder, ignore.
 /dev-tools/missing-doclet/out/
 

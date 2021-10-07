@@ -126,6 +126,11 @@ allprojects { prj ->
       task.inputs.dir(file(resources))
     }
 
+    // Disable checks on JMH generated files.
+    if (prj.path == ":solr:benchmark") {
+      forbiddenApisMain.exclude("**/jmh_generated/**")
+    }
+
     // Disable sysout signatures for these projects.
     if (prj.path in [
         ":lucene:demo",
