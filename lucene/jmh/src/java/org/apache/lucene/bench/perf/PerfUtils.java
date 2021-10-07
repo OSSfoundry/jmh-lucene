@@ -30,8 +30,10 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexCommit;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.IOContext;
+import org.apache.lucene.util.SuppressForbidden;
 
 /** The type Perf utils. */
+@SuppressForbidden(reason = "JMH uses std out for user output")
 public class PerfUtils {
 
   /** Instantiates a new Perf utils. */

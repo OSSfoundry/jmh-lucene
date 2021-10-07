@@ -49,6 +49,7 @@ import org.apache.lucene.index.IndexableField;
  * Minimal port of benchmark's LneDocSource + DocMaker, so tests can enum docs from a line file
  * created by benchmark's WriteLineDoc task
  */
+@SuppressForbidden(reason = "JMH uses std out for user output")
 public class LineFileDocs implements Closeable {
 
   private BufferedReader reader;

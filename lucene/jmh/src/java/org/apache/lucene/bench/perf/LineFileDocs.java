@@ -65,10 +65,13 @@ import org.apache.lucene.facet.taxonomy.TaxonomyWriter;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.VectorSimilarityFunction;
+import org.apache.lucene.util.ArrayUtil;
 import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.util.SuppressForbidden;
 import org.apache.lucene.util.UnicodeUtil;
 
 /** The type Line file docs. */
+@SuppressForbidden(reason = "JMH uses std out for user output")
 public class LineFileDocs implements Closeable {
 
   // sentinel:
@@ -248,7 +251,7 @@ public class LineFileDocs implements Closeable {
     if (isBinary) {
       channel = Files.newByteChannel(Paths.get(path), StandardOpenOption.READ);
     } else {
-      InputStream is = new FileInputStream(path);
+      InputStream is = Files.newInputStream(Paths.get(path));
       reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8), BUFFER_SIZE);
       String firstLine = reader.readLine();
       if (firstLine.startsWith("FIELDS_HEADER_INDICATOR")) {
@@ -260,7 +263,7 @@ public class LineFileDocs implements Closeable {
         if (facetFields != null && facetFields.isEmpty() == false) {
           String[] fields = firstLine.split("\t");
           if (fields.length > 4) {
-            extraFacetFields = Arrays.copyOfRange(fields, 4, fields.length);
+            extraFacetFields = ArrayUtil.copyOfSubArray(fields, 4, fields.length);
             System.out.println("Additional facet fields: " + Arrays.toString(extraFacetFields));
 
             List<String> extraFacetFieldsList = Arrays.asList(extraFacetFields);
@@ -392,6 +395,7 @@ public class LineFileDocs implements Closeable {
   private static final char SEP = '\t';
 
   /** The type Doc state. */
+  @SuppressForbidden(reason = "JMH uses std out for user output")
   public static final class DocState {
 
     /** The Doc. */
@@ -438,7 +442,7 @@ public class LineFileDocs implements Closeable {
     /** The Date cal. */
     // final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'",
     // Locale.US);
-    final Calendar dateCal = Calendar.getInstance();
+    final Calendar dateCal = Calendar.getInstance(Locale.ROOT);
     /** The Date pos. */
     final ParsePosition datePos = new ParsePosition(0);
 
@@ -612,7 +616,7 @@ public class LineFileDocs implements Closeable {
 
     if (isBinary) {
 
-      float[] vector = new float[vectorDimension];
+      //      float[] vector = new float[vectorDimension];
 
       LineFileDoc lfd = nextDocs.get();
       if (lfd == null || lfd.byteText.hasRemaining() == false) {
@@ -813,7 +817,11 @@ public class LineFileDocs implements Closeable {
               while (base > 100) {
                 int factor = (value - accum) / base;
                 nodes.add(
-                    String.format("%d - %d", accum + factor * base, accum + (factor + 1) * base));
+                    String.format(
+                        Locale.ENGLISH,
+                        "%d - %d",
+                        accum + factor * base,
+                        accum + (factor + 1) * base));
                 accum += factor * base;
                 base /= 10;
               }

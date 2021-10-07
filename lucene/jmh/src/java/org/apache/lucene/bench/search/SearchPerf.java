@@ -469,6 +469,7 @@ public class SearchPerf {
         iwc.setMergedSegmentWarmer(
             new IndexWriter.IndexReaderWarmer() {
               @Override
+              @SuppressForbidden(reason = "JMH uses std out for user output")
               public void warm(LeafReader reader) throws IOException {
                 final long t0 = System.currentTimeMillis();
                 // System.out.println("DO WARM: " + reader);
@@ -544,6 +545,7 @@ public class SearchPerf {
         reopenThread =
             new Thread() {
               @Override
+              @SuppressForbidden(reason = "JMH uses std out for user output")
               public void run() {
                 try {
                   final long startMS = System.currentTimeMillis();
@@ -576,7 +578,8 @@ public class SearchPerf {
                     }
                   }
                 } catch (InterruptedException e) {
-                  return;
+                  System.out.println(e.getMessage());
+                  Thread.currentThread().interrupt();
                 } catch (Exception e) {
                   throw new RuntimeException(e);
                 }
@@ -697,7 +700,7 @@ public class SearchPerf {
 
       long staticRandomSeed = 0;
       final Random staticRandom = new Random(staticRandomSeed);
-      final Random random = new Random(randomSeed);
+      // final Random random = new Random(randomSeed);
 
       final DirectSpellChecker spellChecker = new DirectSpellChecker();
       indexState =

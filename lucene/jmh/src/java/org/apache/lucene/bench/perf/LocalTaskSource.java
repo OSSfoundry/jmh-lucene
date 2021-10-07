@@ -33,9 +33,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.util.SuppressForbidden;
 
 /** The type Local task source. */
 // Serves up tasks from locally loaded list:
+@SuppressForbidden(reason = "JMH uses std out for user output")
 public class LocalTaskSource implements TaskSource {
 
   private final AtomicInteger nextTask = new AtomicInteger();
@@ -83,7 +85,7 @@ public class LocalTaskSource implements TaskSource {
     if (doPKLookup) {
       final int numPKTasks = (int) Math.min(maxDoc / 6000., numTaskPerCat);
       final Set<BytesRef> pkSeenIDs = new HashSet<BytesRef>();
-      final Set<Integer> pkSeenIntIDs = new HashSet<Integer>();
+      // final Set<Integer> pkSeenIntIDs = new HashSet<Integer>();
       for (List<Task> tasks : loadedTasks.values()) {
         for (int idx = 0; idx < numPKTasks; idx++) {
           tasks.add(new PKLookupTask(maxDoc, staticRandom, 4000, pkSeenIDs, idx));

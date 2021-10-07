@@ -103,6 +103,7 @@ public final class Indexer {
       ConcurrentMergeScheduler cms =
           new ConcurrentMergeScheduler() {
             @Override
+            @SuppressForbidden(reason = "JMH uses std out for user output")
             protected void handleMergeException(Throwable exc) {
               System.out.println("ERROR: CMS hit exception during merging; aborting...");
               indexingFailed.set(true);
@@ -279,8 +280,6 @@ public final class Indexer {
             "-indexSort can only handle {long,int,string} sort; got: " + typeString);
       }
       indexSortField = indexSortField.substring(0, i);
-    } else {
-      indexSortType = null;
     }
 
     final double ramBufferSizeMB = args.getDouble("-ramBufferMB");

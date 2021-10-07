@@ -31,6 +31,7 @@ import org.apache.lucene.index.NoMergePolicy;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.PrintStreamInfoStream;
+import org.apache.lucene.util.SuppressForbidden;
 
 // rm -rf /l/scratch/indices/geonames; pushd core; ant jar; popd; javac -d /l/util/build -cp
 // build/core/classes/java:build/analysis/common/classes/java
@@ -39,6 +40,7 @@ import org.apache.lucene.util.PrintStreamInfoStream;
 // /lucenedata/geonames/allCountries.txt /l/scratch/indices/geonames
 
 /** The type Index geo names 2. */
+@SuppressForbidden(reason = "JMH uses std out for user output")
 public class IndexGeoNames2 {
 
   /** Instantiates a new Index geo names 2. */

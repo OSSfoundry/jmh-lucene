@@ -101,7 +101,10 @@ public class RandomQuery extends Query {
     };
   }
 
-  public void visit(QueryVisitor visitor) {}
+  @Override
+  public void visit(QueryVisitor visitor) {
+    /* do nothing */
+  }
 
   @Override
   public String toString(String field) {
@@ -110,7 +113,7 @@ public class RandomQuery extends Query {
 
   @Override
   public int hashCode() {
-    return 31 * classHash() + new Double(fractionKeep).hashCode();
+    return 31 * classHash() + Double.valueOf(fractionKeep).hashCode();
   }
 
   @Override

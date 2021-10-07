@@ -47,7 +47,6 @@ import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopFieldDocs;
 import org.apache.lucene.search.TotalHits;
-import org.apache.lucene.search.grouping.AllGroupsCollector;
 import org.apache.lucene.search.grouping.BlockGroupingCollector;
 import org.apache.lucene.search.grouping.FirstPassGroupingCollector;
 import org.apache.lucene.search.grouping.GroupDocs;
@@ -63,8 +62,10 @@ import org.apache.lucene.search.highlight.TextFragment;
 import org.apache.lucene.search.highlight.TokenSources;
 import org.apache.lucene.search.vectorhighlight.FieldQuery;
 import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.util.SuppressForbidden;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
+@SuppressForbidden(reason = "JMH uses std out for user output")
 final class SearchTask extends Task {
 
   private final String category;
@@ -195,14 +196,14 @@ final class SearchTask extends Task {
               new FirstPassGroupingCollector(new TermGroupSelector(group), Sort.RELEVANCE, 10);
 
           final Collector c;
-          final AllGroupsCollector<BytesRef> allGroupsCollector;
+          //          final AllGroupsCollector<BytesRef> allGroupsCollector;
           // Turn off AllGroupsCollector for now -- it's very slow:
           if (false && doCountGroups) {
-            allGroupsCollector = new AllGroupsCollector(new TermGroupSelector(group));
+            // allGroupsCollector = new AllGroupsCollector(new TermGroupSelector(group));
             // c = MultiCollector.wrap(allGroupsCollector, c1);
             c = c1;
           } else {
-            allGroupsCollector = null;
+            // allGroupsCollector = null;
             c = c1;
           }
 
@@ -220,10 +221,6 @@ final class SearchTask extends Task {
                     true);
             searcher.search(q, c2);
             groupsResultTerms = c2.getTopGroups(0);
-            if (allGroupsCollector != null) {
-              groupsResultTerms =
-                  new TopGroups<BytesRef>(groupsResultTerms, allGroupsCollector.getGroupCount());
-            }
             if (doHilite) {
               hilite(groupsResultTerms, state, searcher);
             }

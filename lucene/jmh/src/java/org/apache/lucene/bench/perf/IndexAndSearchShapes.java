@@ -160,8 +160,8 @@ public class IndexAndSearchShapes {
         }
         int polyCount = Integer.parseInt(line.substring(13));
         List<Polygon> polyPlusHoles = new ArrayList<>();
-        double sumLat = 0.0;
-        double sumLon = 0.0;
+        // double sumLat = 0.0;
+        // double sumLon = 0.0;
         for (int j = 0; j < polyCount; j++) {
           line = reader.readLine();
           if (line.startsWith("    vertex count=") == false) {
@@ -183,7 +183,7 @@ public class IndexAndSearchShapes {
           }
           for (int k = 0; k < vertexCount; k++) {
             lats[k] = Double.parseDouble(parts[k]);
-            sumLat += lats[k];
+            // sumLat += lats[k];
             minLat = Math.min(minLat, lats[k]);
             maxLat = Math.max(maxLat, lats[k]);
           }
@@ -200,7 +200,7 @@ public class IndexAndSearchShapes {
           }
           for (int k = 0; k < vertexCount; k++) {
             lons[k] = Double.parseDouble(parts[k]);
-            sumLon += lons[k];
+            //  sumLon += lons[k];
             minLon = Math.min(minLon, lons[k]);
             maxLon = Math.max(maxLon, lons[k]);
           }
@@ -224,6 +224,7 @@ public class IndexAndSearchShapes {
     return result;
   }
 
+  @SuppressForbidden(reason = "JMH uses std out for user output")
   private static void createIndex(
       boolean fast, boolean doForceMerge, String fileName, boolean isDev)
       throws IOException, InterruptedException {
@@ -278,9 +279,10 @@ public class IndexAndSearchShapes {
         threads[t] =
             new Thread() {
               @Override
+              @SuppressForbidden(reason = "JMH uses std out for user output")
               public void run() {
                 String[] lines = new String[CHUNK];
-                int chunkCount = 0;
+                //  int chunkCount = 0;
                 while (finished.get() == false) {
                   try {
                     int count = CHUNK;
@@ -319,7 +321,7 @@ public class IndexAndSearchShapes {
                         // throw new IOException("error indexing shape :" + lines[i], e);
                       }
                     }
-                    chunkCount++;
+                    //     chunkCount++;
 
                   } catch (IOException ioe) {
                     throw new RuntimeException(ioe);

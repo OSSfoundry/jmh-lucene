@@ -58,11 +58,11 @@ public class TaskParser {
       dayOfYearDVSort; // Day of the year of the "last modified timestamp", NUMERIC doc values
   private final Sort lastModNDVSort;
   private final int topN;
-  private final Random random;
+  //  private final Random random;
   private final boolean doStoredLoads;
   private final IndexState state;
   private final VectorDictionary vectorDictionary;
-  private final String vectorField;
+  // private final String vectorField;
 
   /**
    * Instantiates a new Task parser.
@@ -88,15 +88,15 @@ public class TaskParser {
     this.queryParser = queryParser;
     this.fieldName = fieldName;
     this.topN = topN;
-    this.random = random;
+    //    this.random = random;
     this.doStoredLoads = doStoredLoads;
     this.state = state;
     if (vectorFile != null) {
       vectorDictionary = new VectorDictionary(vectorFile);
-      vectorField = "vector";
+      // vectorField = "vector";
     } else {
       vectorDictionary = null;
-      vectorField = null;
+      // vectorField = null;
     }
     titleDVSort = new Sort(new SortField("titleDV", SortField.Type.STRING));
     titleBDVSort = new Sort(new SortField("titleBDV", SortField.Type.STRING_VAL));
@@ -195,7 +195,7 @@ public class TaskParser {
      */
     Task buildQueryTask(String input) throws ParseException {
       text = input;
-      Query filter = parseFilter();
+      //      Query filter = parseFilter();
       facets = parseFacets();
       List<String> drillDowns = parseDrillDowns();
       doStoredLoadsTask = TaskParser.this.doStoredLoads;
@@ -206,7 +206,7 @@ public class TaskParser {
       int msm = parseMinShouldMatch();
       Query query = buildQuery(taskType, text, msm);
       Query query2 = applyDrillDowns(query, drillDowns);
-      Query query3 = applyFilter(query2, filter);
+      //      Query query3 = applyFilter(query2, filter);
       return new SearchTask(
           category,
           query2,
@@ -685,7 +685,7 @@ public class TaskParser {
         throw new RuntimeException("failed to parse query=" + text);
       }
       fieldHolder[0] = text.substring("(".length(), colon);
-      MultiPhraseQuery.Builder b = new MultiPhraseQuery.Builder();
+      //      MultiPhraseQuery.Builder b = new MultiPhraseQuery.Builder();
       int endParen = text.indexOf(')');
       if (endParen == -1) {
         throw new RuntimeException("failed to parse query=" + text);

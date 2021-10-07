@@ -302,6 +302,7 @@ public class IndexThreads {
     }
 
     @Override
+    @SuppressForbidden(reason = "JMH uses std out for user output")
     public void run() {
       try {
         final LineFileDocs.DocState docState = docs.newDocState();
@@ -338,6 +339,7 @@ public class IndexThreads {
         try {
           startLatch.await();
         } catch (InterruptedException ie) {
+          System.out.println(ie.getMessage());
           Thread.currentThread().interrupt();
           return;
         }
@@ -389,6 +391,7 @@ public class IndexThreads {
 
                       @SuppressWarnings("synthetic-access")
                       @Override
+                      @SuppressForbidden(reason = "JMH uses std out for user output")
                       public boolean hasNext() {
                         if (upto < numDocs) {
                           upto++;
@@ -567,6 +570,7 @@ public class IndexThreads {
       }
     }
 
+    @SuppressForbidden(reason = "JMH uses std out for user output")
     private void maybeOpenReader(long tStart) throws IOException {
       if (nrtEverySec > 0.0) {
         long ns = System.nanoTime();
@@ -623,6 +627,7 @@ public class IndexThreads {
         try {
           Thread.sleep(200);
         } catch (Exception ex) {
+          System.out.println(ex.getMessage());
         }
         int numDocs = count.get();
 

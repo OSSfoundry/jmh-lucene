@@ -73,8 +73,6 @@ public class IndexState {
   /** The Points pk lookup states. */
   public final Map<Object, ThreadLocal<PointsPKLookupState>> pointsPKLookupStates = new HashMap<>();
 
-  private SortedSetDocValuesReaderState sortedSetReaderState;
-
   /**
    * Instantiates a new Index state.
    *

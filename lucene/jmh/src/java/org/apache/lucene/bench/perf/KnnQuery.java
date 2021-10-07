@@ -57,6 +57,7 @@ public class KnnQuery extends Query {
     this.topK = topK;
   }
 
+  @Override
   public Weight createWeight(IndexSearcher searcher, ScoreMode scoreMode, float boost)
       throws IOException {
     return new KnnWeight();
@@ -152,6 +153,7 @@ public class KnnQuery extends Query {
       return topDocs.scoreDocs[upTo].score;
     }
 
+    @Override
     public float getMaxScore(int upTo) {
       if (this.upTo < topDocs.scoreDocs.length - 1) {
         if (upTo >= topDocs.scoreDocs[this.upTo + 1].doc) {

@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import org.apache.lucene.bench.perf.VectorDictionary;
+import org.apache.lucene.util.SuppressForbidden;
 
 /**
  * Precompute per-document semantic vectors as the average of their word vectors. This tool is used
@@ -37,6 +38,7 @@ import org.apache.lucene.bench.perf.VectorDictionary;
  * as a precursor for indexing vectors in benchmark runs. It's provided for "offline" (manual) use,
  * and doesn't factor into benchmark execution.
  */
+@SuppressForbidden(reason = "JMH uses std out for user output")
 public class WikiVectors {
 
   private final VectorDictionary dict;

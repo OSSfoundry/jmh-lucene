@@ -28,6 +28,7 @@ import java.util.Locale;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.pattern.SimplePatternTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.util.SuppressForbidden;
 
 // javac -cp
 // ../../build/analysis/common/lucene-analyzers-common-7.0.0-SNAPSHOT.jar:../../build/core/lucene-core-7.0.0-SNAPSHOT.jar TokenizeFile.java
@@ -39,6 +40,7 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 // ../../build/analysis/common/lucene-analyzers-common-7.0.0-SNAPSHOT.jar:../../build/core/lucene-core-7.0.0-SNAPSHOT.jar /l/util/src/main/perf/TokenizeFile.java; java -cp /l/util/src/main/perf:../../build/analysis/common/lucene-analyzers-common-7.0.0-SNAPSHOT.jar:../../build/core/lucene-core-7.0.0-SNAPSHOT.jar TokenizeFile /lucenedata/enwiki/enwiki-20130102-lines.txt
 
 /** The type Tokenize file. */
+@SuppressForbidden(reason = "JMH uses std out for user output")
 public class TokenizeFile {
 
   /** Instantiates a new Tokenize file. */

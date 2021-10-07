@@ -278,7 +278,7 @@ public class IndexTaxis {
               private Document nextDoc;
               private boolean nextSet;
               private int lastLineStart;
-              private int chunkDocCount;
+              // private int chunkDocCount;
               private final BytesRef colorBytesRef = new BytesRef(new byte[1]);
 
               @Override
@@ -300,6 +300,7 @@ public class IndexTaxis {
                 return result;
               }
 
+              @SuppressForbidden(reason = "JMH uses std out for user output")
               private void setNextDoc() {
                 reuseDoc.clear();
                 if (i == s.length()) {
@@ -347,7 +348,7 @@ public class IndexTaxis {
                                 + " vs fields.length-1="
                                 + (colorReuseFields.length - 1));
                       }
-                      chunkDocCount++;
+                      // chunkDocCount++;
                       this.nextDoc = reuseDoc;
                       int x = docCounter.incrementAndGet();
                       long y = bytesCounter.addAndGet((i + 1) - lastLineStart);
