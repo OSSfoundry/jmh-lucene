@@ -41,19 +41,19 @@ The default behavior is to run all benchmarks:
 
 Pass a pattern or name after the command to select the benchmarks:
 
-`./jmh.sh SearchPerf`
+`./jmh.sh FuzzyQuery`
 
 Check which benchmarks match the provided pattern:
 
-`./jmh.sh -l SearchPerf`
+`./jmh.sh -l FuzzyQuery`
 
 Run a specific test and overrides the number of forks, iterations and sets warm-up iterations to `2`:
 
-`./jmh.sh -f 2 -i 2 -wi 2 SearchPerf`
+`./jmh.sh -f 2 -i 2 -wi 2 FuzzyQuery`
 
 Run a specific test with async and GC profilers on Linux and flame graph output:
 
-`./jmh.sh -prof gc -prof async:libPath=/path/to/libasyncProfiler.so\;output=flamegraph\;dir=profile-results SearchPerf`
+`./jmh.sh -prof gc -prof async:libPath=/path/to/libasyncProfiler.so\;output=flamegraph\;dir=profile-results FuzzyQuery`
 
 ### Using JMH with async profiler
 
@@ -110,25 +110,10 @@ per second.
 
 JMH comes with a variety of built-in profilers. Here is an example of using JFR:
 
-`./jmh.sh -prof jfr:dir=profile-results\;configName=jfr-profile.jfc`
+`./jmh.sh -prof jfr:dir=profile-results\;configName=jfr-profile.jfc FuzzyQuery`
 
 In this example we point to the included configuration file with configName, but you could also do something like
 settings=default or settings=profile.
-
-### Benchmark Outputs
-
-By default, output that benchmarks generate is created in the build/work directory. You can change this location by setting the workBaseDir system property like this:
-
-    -jvmArgsAppend -DworkBaseDir=/data3/bench_work
-
-If a profiler generates output, it will generally be written to the current working directory - that is the benchmark module directory itself. You can usually change this via the dir option, for example:
-
-    ./jmh.sh -prof jfr:dir=build/work/profile-results JsonFaceting
-
-### Using a Separate MiniCluster Base Directory
-
-If you have a special case MiniCluster you have generated, such as one you have prepared with very large indexes for a search benchmark run, you can change the base directory used by the profiler
-for the MiniCluster with the miniClusterBaseDir system property. This is for search based benchmarks in general and the MiniCluster wil not be removed automatically by the benchmark.
 
 ### JMH Options
 
