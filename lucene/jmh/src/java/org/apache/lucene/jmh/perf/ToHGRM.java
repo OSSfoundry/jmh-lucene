@@ -23,6 +23,7 @@ import org.HdrHistogram.Histogram;
 
 // javac -cp lib/HdrHistogram.jar ToHGRM.java
 
+/** The type To hgrm. */
 public class ToHGRM {
 
   /** Instantiates a new To hgrm. */

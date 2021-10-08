@@ -31,6 +31,7 @@ import org.apache.lucene.index.IndexCommit;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.IOContext;
 
+/** The type Perf utils. */
 public class PerfUtils {
 
   /** Instantiates a new Perf utils. */

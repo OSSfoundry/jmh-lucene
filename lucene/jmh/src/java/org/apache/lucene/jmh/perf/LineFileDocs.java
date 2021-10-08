@@ -21,7 +21,6 @@ package org.apache.lucene.jmh.perf;
 
 import java.io.BufferedReader;
 import java.io.Closeable;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -43,6 +42,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -69,6 +69,7 @@ import org.apache.lucene.util.ArrayUtil;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.UnicodeUtil;
 
+/** The type Line file docs. */
 public class LineFileDocs implements Closeable {
 
   // sentinel:
@@ -291,7 +292,7 @@ public class LineFileDocs implements Closeable {
       } else {
         // Old format: no header
         reader.close();
-        is = new FileInputStream(path);
+        is = Files.newInputStream(Paths.get(path));
         reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8), BUFFER_SIZE);
       }
     }
@@ -391,6 +392,7 @@ public class LineFileDocs implements Closeable {
 
   private static final char SEP = '\t';
 
+  /** The type Doc state. */
   public static final class DocState {
 
     /** The Doc. */
@@ -437,7 +439,7 @@ public class LineFileDocs implements Closeable {
     /** The Date cal. */
     // final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'",
     // Locale.US);
-    final Calendar dateCal = Calendar.getInstance(Locale.ROOT);
+    final Calendar dateCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.ROOT);
     /** The Date pos. */
     final ParsePosition datePos = new ParsePosition(0);
 

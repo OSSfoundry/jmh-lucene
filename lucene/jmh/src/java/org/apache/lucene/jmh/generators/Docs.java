@@ -78,6 +78,13 @@ public class Docs {
     this.random = new BenchmarkRandomSource(new SplittableRandomGenerator(seed));
   }
 
+  /**
+   * Pre generate iterator.
+   *
+   * @param numDocs the num docs
+   * @return the iterator
+   * @throws InterruptedException the interrupted exception
+   */
   public Iterator<Document> preGenerate(int numDocs) throws InterruptedException {
     log("preGenerate docs " + numDocs + " ...");
     docs.clear();
@@ -163,7 +170,9 @@ public class Docs {
   /**
    * Field docs.
    *
+   * @param name the name
    * @param generator the generator
+   * @param properties the properties
    * @return the docs
    */
   public Docs field(String name, RndGen<?> generator, Object... properties) {
@@ -179,11 +188,20 @@ public class Docs {
     return this;
   }
 
+  /** The type Fld. */
   public static class Fld {
 
+    /** The Generator. */
     RndGen<?> generator;
+    /** The Properties. */
     Set<Object> properties;
 
+    /**
+     * Instantiates a new Fld.
+     *
+     * @param generator the generator
+     * @param properties the properties
+     */
     public Fld(RndGen<?> generator, Set<Object> properties) {
       this.generator = generator;
       this.properties = properties;

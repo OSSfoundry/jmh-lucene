@@ -51,7 +51,9 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.IOContext;
 import org.apache.lucene.util.IOUtils;
+import org.apache.lucene.util.SuppressForbidden;
 
+/** The type Disk usage. */
 public class DiskUsage {
 
   /** Instantiates a new Disk usage. */
@@ -309,6 +311,7 @@ public class DiskUsage {
    * @param stats the stats
    * @throws Exception the exception
    */
+  @SuppressForbidden(reason = "benchmark")
   static void report(SegmentReader reader, Set<FieldStats> stats) throws Exception {
     long totalSize = 0;
     long storeSize = 0;
@@ -433,7 +436,7 @@ public class DiskUsage {
     IndexOptions options = fi.getIndexOptions();
     if (options != IndexOptions.NONE) {
       String[] words = options.toString().split("_");
-      sb.append(words[words.length - 1].toLowerCase());
+      sb.append(words[words.length - 1].toLowerCase(Locale.ROOT));
       sb.append(" ");
     }
     if (fi.hasPayloads()) {
@@ -453,7 +456,7 @@ public class DiskUsage {
     }
     DocValuesType dvType = fi.getDocValuesType();
     if (dvType != DocValuesType.NONE) {
-      sb.append(dvType.toString().toLowerCase());
+      sb.append(dvType.toString().toLowerCase(Locale.ROOT));
     }
     return sb.toString().trim();
   }

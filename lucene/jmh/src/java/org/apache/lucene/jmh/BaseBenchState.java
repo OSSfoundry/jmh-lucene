@@ -61,7 +61,9 @@ public class BaseBenchState {
 
   private static final long RANDOM_SEED = 6624420638116043983L;
 
+  /** The constant random. */
   public static final SplittableRandom random = new SplittableRandom(getInitRandomeSeed());
+
   private IndexWriter writer;
   private ByteBuffersDirectory directory;
 
@@ -82,13 +84,20 @@ public class BaseBenchState {
   /** The constant QUIET_LOG. */
   public static final boolean QUIET_LOG = Boolean.getBoolean("quietLog");
 
-  public static void log(String value) {
-    log(value, false);
-  }
   /**
    * Log.
    *
    * @param value the value
+   */
+  public static void log(String value) {
+    log(value, false);
+  }
+
+  /**
+   * Log.
+   *
+   * @param value the value
+   * @param newLine the new line
    */
   public static void log(String value, boolean newLine) {
     if (!QUIET_LOG) {
@@ -135,10 +144,29 @@ public class BaseBenchState {
     }
   }
 
+  /**
+   * Index index writer.
+   *
+   * @param directory the directory
+   * @param docs the docs
+   * @param docCount the doc count
+   * @return the index writer
+   * @throws Exception the exception
+   */
   public IndexWriter index(Directory directory, Docs docs, int docCount) throws Exception {
     return index(directory, docs, docCount, Integer.MAX_VALUE);
   }
 
+  /**
+   * Index index writer.
+   *
+   * @param directory the directory
+   * @param docs the docs
+   * @param docCount the doc count
+   * @param segmentCount the segment count
+   * @return the index writer
+   * @throws Exception the exception
+   */
   public IndexWriter index(Directory directory, Docs docs, int docCount, int segmentCount)
       throws Exception {
 
@@ -305,6 +333,12 @@ public class BaseBenchState {
     }
   }
 
+  /**
+   * Directory byte buffers directory.
+   *
+   * @param dir the dir
+   * @return the byte buffers directory
+   */
   public ByteBuffersDirectory directory(String dir) {
     if (dir.equals("ram")) {
       this.directory = new ByteBuffersDirectory();

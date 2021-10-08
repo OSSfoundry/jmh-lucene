@@ -283,6 +283,11 @@ public class RndGen<T> implements AsString<T> {
     return this.distribution;
   }
 
+  /**
+   * Gets description.
+   *
+   * @return the description
+   */
   protected String getDescription() {
     return description;
   }

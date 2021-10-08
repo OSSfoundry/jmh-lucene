@@ -16,7 +16,6 @@
  */
 package org.apache.lucene.jmh.perf;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -69,6 +68,7 @@ import org.apache.lucene.util.PrintStreamInfoStream;
 // javac -Xlint:deprecation -cp
 // ../modules/analysis/build/common/classes/java:build/classes/java:build/classes/test-framework:build/classes/test:build/contrib/misc/classes/java perf/Indexer.java perf/LineFileDocs.java
 
+/** The type Indexer. */
 public final class Indexer {
 
   /** Instantiates a new Indexer. */
@@ -680,9 +680,15 @@ public final class Indexer {
       } finally {
         Files.walk(tmpDirPath)
             .sorted(Comparator.reverseOrder())
-            .map(Path::toFile)
-            .forEach(File::delete);
-        tmpDirPath.toFile().delete();
+            .forEach(
+                path -> {
+                  try {
+                    Files.delete(path);
+                  } catch (IOException e) {
+                    throw new RuntimeException(e);
+                  }
+                });
+        Files.delete(tmpDirPath);
         System.out.println("Deleted tmp dir: " + tmpDirPath);
       }
       long rearrangeEndMSec = System.currentTimeMillis();

@@ -39,6 +39,7 @@ import org.apache.lucene.util.RamUsageTester;
 // javac -cp
 // build/core/lucene-core-6.0.0-SNAPSHOT.jar:build/analysis/common/lucene-analyzers-common-6.0.0-SNAPSHOT.jar:build/codecs/lucene-codecs-6.0.0-SNAPSHOT.jar:build/test-framework/lucene-test-framework-6.0.0-SNAPSHOT.jar /l/util/src/main/perf/PrintPerFieldHeapUsage.java ; java -cp /l/util/src/main:build/core/lucene-core-6.0.0-SNAPSHOT.jar:build/analysis/common/lucene-analyzers-common-6.0.0-SNAPSHOT.jar:build/codecs/lucene-codecs-6.0.0-SNAPSHOT.jar:build/test-framework/lucene-test-framework-6.0.0-SNAPSHOT.jar perf.PrintPerFieldHeapUsage
 
+/** The type Print per field heap usage. */
 public class PrintPerFieldHeapUsage {
 
   /** The Field count. */

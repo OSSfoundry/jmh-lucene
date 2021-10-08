@@ -16,6 +16,8 @@
  */
 package org.apache.lucene.jmh.perf;
 
+import static org.apache.lucene.util.IOUtils.UTF_8;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -63,6 +65,7 @@ import org.apache.lucene.util.PrintStreamInfoStream;
 // java -cp build/core/classes/java:/l/util/src/main perf.IndexTaxis /b/taxis.nonsparse 4
 // /l/data/mergedSubset.sparse.csv.blocks
 
+/** The type Index taxis. */
 public class IndexTaxis {
 
   private static final int NEWLINE = (byte) '\n';
@@ -261,7 +264,7 @@ public class IndexTaxis {
       AtomicLong bytesCounter)
       throws IOException {
     // System.out.println("CHUNK: " + chunk.length + " bytes");
-    String s = new String(chunk, 0, chunk.length);
+    String s = new String(chunk, 0, chunk.length, UTF_8);
     if (s.charAt(s.length() - 1) != '\n') {
       throw new AssertionError();
     }

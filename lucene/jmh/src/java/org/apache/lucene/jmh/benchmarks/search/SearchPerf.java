@@ -78,6 +78,7 @@ import org.apache.lucene.util.Constants;
 import org.apache.lucene.util.InfoStream;
 import org.apache.lucene.util.PrintStreamInfoStream;
 import org.apache.lucene.util.RamUsageEstimator;
+import org.apache.lucene.util.SuppressForbidden;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -257,6 +258,7 @@ public class SearchPerf {
      * @throws Exception the exception
      */
     @Setup(Level.Trial)
+    @SuppressForbidden(reason = "benchmark")
     public void setup(BenchmarkParams benchmarkParams) throws Exception {
 
       Directory dir0;
@@ -297,6 +299,7 @@ public class SearchPerf {
       final Class<? extends Similarity> simClazz =
           Class.forName("org.apache.lucene.search.similarities." + sim)
               .asSubclass(Similarity.class);
+
       final Similarity similarity = simClazz.newInstance();
 
       log("Using dir impl " + dir0.getClass().getName());

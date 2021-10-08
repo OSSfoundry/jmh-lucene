@@ -41,18 +41,29 @@ public class ExponentialMovingAverages {
     this(Clock.defaultClock());
   }
 
-  /** Creates a new {@link ExponentialMovingAverages}. */
+  /**
+   * Creates a new {@link ExponentialMovingAverages}. @param clock the clock @param clock the
+   * clock @param clock the clock @param clock the clock @param clock the clock
+   *
+   * @param clock the clock
+   */
   public ExponentialMovingAverages(Clock clock) {
     this.clock = clock;
     this.lastTick = new AtomicLong(this.clock.getTick());
   }
 
+  /**
+   * Update.
+   *
+   * @param n the n
+   */
   public void update(long n) {
     m1Rate.update(n);
     m5Rate.update(n);
     m15Rate.update(n);
   }
 
+  /** Tick if necessary. */
   public void tickIfNecessary() {
     final long oldTick = lastTick.get();
     final long newTick = clock.getTick();
@@ -70,14 +81,29 @@ public class ExponentialMovingAverages {
     }
   }
 
+  /**
+   * Gets m 1 rate.
+   *
+   * @return the m 1 rate
+   */
   public double getM1Rate() {
     return m1Rate.getRate(TimeUnit.SECONDS);
   }
 
+  /**
+   * Gets m 5 rate.
+   *
+   * @return the m 5 rate
+   */
   public double getM5Rate() {
     return m5Rate.getRate(TimeUnit.SECONDS);
   }
 
+  /**
+   * Gets m 15 rate.
+   *
+   * @return the m 15 rate
+   */
   public double getM15Rate() {
     return m15Rate.getRate(TimeUnit.SECONDS);
   }

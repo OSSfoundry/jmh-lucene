@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.RamUsageEstimator;
 
+/** The type Queries. */
 public class Queries {
 
   private final Queue<Query> queries = new ConcurrentLinkedQueue<>();
@@ -33,6 +34,7 @@ public class Queries {
   /**
    * Docs docs.
    *
+   * @param generator the generator
    * @return the docs
    */
   public static Queries queries(QueryGen generator) {
@@ -43,6 +45,13 @@ public class Queries {
     this.queryGen = queryGen;
   }
 
+  /**
+   * Pre generate iterator.
+   *
+   * @param numQueries the num queries
+   * @return the iterator
+   * @throws InterruptedException the interrupted exception
+   */
   public Iterator<Query> preGenerate(int numQueries) throws InterruptedException {
     log("preGenerate queries " + numQueries + " ...");
     queries.clear();
@@ -90,12 +99,23 @@ public class Queries {
     };
   }
 
+  /**
+   * Query query.
+   *
+   * @return the query
+   */
   public Query query() {
     return queryGen.generate();
   }
 
+  /** The interface Query gen. */
   public interface QueryGen {
 
+    /**
+     * Generate query.
+     *
+     * @return the query
+     */
     Query generate();
   }
 

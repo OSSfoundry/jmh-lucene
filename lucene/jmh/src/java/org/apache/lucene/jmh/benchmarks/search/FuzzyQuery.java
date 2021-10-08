@@ -64,7 +64,9 @@ import org.openjdk.jmh.infra.BenchmarkParams;
 public class FuzzyQuery {
 
   private static final boolean DEBUG = true;
+  /** The constant SHORT_FIELD. */
   public static final String SHORT_FIELD = "short";
+  /** The constant LONG_PREFIX_SHORT_POST. */
   public static final String LONG_PREFIX_SHORT_POST = "longPrefixShortPost";
 
   private static LongAdder hits = new LongAdder();
@@ -86,12 +88,15 @@ public class FuzzyQuery {
     private IndexReader indexReader;
     private IndexSearcher indexSearcher;
 
+    /** The Num docs. */
     @Param("100000")
     int numDocs;
 
+    /** The Prefix. */
     @Param({"0", "15", "45"})
     int prefix;
 
+    /** The Edit distance. */
     @Param({"1", "2"})
     int editDistance;
 

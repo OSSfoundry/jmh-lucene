@@ -32,7 +32,9 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.lucene.util.NamedThreadFactory;
+import org.apache.lucene.util.SuppressForbidden;
 
+/** The type Statistics helper. */
 public class StatisticsHelper implements Runnable {
 
   private final OperatingSystemMXBean operatingSystem;
@@ -174,6 +176,7 @@ public class StatisticsHelper implements Runnable {
    *
    * @return the boolean
    */
+  @SuppressForbidden(reason = "benchmark")
   public boolean startStatistics() {
     // Support for multiple nodes requires to ignore start requests after the
     // first
@@ -269,6 +272,7 @@ public class StatisticsHelper implements Runnable {
    *
    * @return the boolean
    */
+  @SuppressForbidden(reason = "benchmark")
   public boolean stopStatistics() {
     synchronized (this) {
       if (starts.decrementAndGet() > 0) {

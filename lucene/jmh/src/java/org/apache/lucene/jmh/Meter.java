@@ -44,6 +44,12 @@ public class Meter {
     this(new ExponentialMovingAverages(clock), clock);
   }
 
+  /**
+   * Instantiates a new Meter.
+   *
+   * @param movingAverages the moving averages
+   * @param clock the clock
+   */
   public Meter(ExponentialMovingAverages movingAverages, Clock clock) {
     this.movingAverages = movingAverages;
     this.clock = clock;
@@ -66,20 +72,40 @@ public class Meter {
     movingAverages.update(n);
   }
 
+  /**
+   * Gets count.
+   *
+   * @return the count
+   */
   public long getCount() {
     return count.sum();
   }
 
+  /**
+   * Gets fifteen minute rate.
+   *
+   * @return the fifteen minute rate
+   */
   public double getFifteenMinuteRate() {
     movingAverages.tickIfNecessary();
     return movingAverages.getM15Rate();
   }
 
+  /**
+   * Gets five minute rate.
+   *
+   * @return the five minute rate
+   */
   public double getFiveMinuteRate() {
     movingAverages.tickIfNecessary();
     return movingAverages.getM5Rate();
   }
 
+  /**
+   * Gets mean rate.
+   *
+   * @return the mean rate
+   */
   public double getMeanRate() {
     if (getCount() == 0) {
       return 0.0;
@@ -89,6 +115,11 @@ public class Meter {
     }
   }
 
+  /**
+   * Gets one minute rate.
+   *
+   * @return the one minute rate
+   */
   public double getOneMinuteRate() {
     movingAverages.tickIfNecessary();
     return movingAverages.getM1Rate();

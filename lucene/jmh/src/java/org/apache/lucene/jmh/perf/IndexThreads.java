@@ -33,6 +33,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.util.BytesRef;
 
+/** The type Index threads. */
 public class IndexThreads {
 
   /** The enum Mode. */
@@ -695,6 +696,7 @@ public class IndexThreads {
    * Returns random string of length between 0-20 codepoints, all codepoints within the same unicode
    * block. @param r the r
    *
+   * @param r the r
    * @return the string
    */
   static String randomRealisticUnicodeString(Random r) {
@@ -705,6 +707,7 @@ public class IndexThreads {
    * Returns random string of length up to maxLength codepoints , all codepoints within the same
    * unicode block. @param r the r
    *
+   * @param r the r
    * @param maxLength the max length
    * @return the string
    */
@@ -716,6 +719,7 @@ public class IndexThreads {
    * Returns random string of length between min and max codepoints, all codepoints within the same
    * unicode block. @param r the r
    *
+   * @param r the r
    * @param minLength the min length
    * @param maxLength the max length
    * @return the string

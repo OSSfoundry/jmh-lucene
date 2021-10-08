@@ -18,6 +18,7 @@ package org.apache.lucene.jmh.generators;
 
 /** The interface Solr randomness source. */
 public interface RandomnessSource {
+
   /**
    * Next long.
    *
@@ -35,5 +36,10 @@ public interface RandomnessSource {
    */
   RandomnessSource withDistribution(Distribution distribution);
 
+  /**
+   * Gets distribution.
+   *
+   * @return the distribution
+   */
   Distribution getDistribution();
 }

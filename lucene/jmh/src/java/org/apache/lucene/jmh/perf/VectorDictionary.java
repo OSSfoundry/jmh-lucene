@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+/** The type Vector dictionary. */
 public class VectorDictionary {
 
   private final Map<String, float[]> dict = new HashMap<>();
@@ -173,7 +174,7 @@ public class VectorDictionary {
     List<String> tokens = new ArrayList<>();
     for (String t : document.split("[\\]\\[\\\\:\"'?/<> \t~`!@#$%^&*\\(\\)+={}]+")) {
       if (t.length() > 0) {
-        t = t.toLowerCase();
+        t = t.toLowerCase(Locale.ROOT);
         tokens.add(t);
       }
     }

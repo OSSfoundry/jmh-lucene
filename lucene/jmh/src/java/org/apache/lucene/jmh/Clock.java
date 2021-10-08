@@ -16,7 +16,12 @@
  */
 package org.apache.lucene.jmh;
 
+/** The type Clock. */
 public abstract class Clock {
+
+  /** Instantiates a new Clock. */
+  public Clock() {}
+
   /**
    * Returns the current time tick.
    *
@@ -45,6 +50,10 @@ public abstract class Clock {
 
   /** A clock implementation which returns the current time in epoch nanoseconds. */
   public static class UserTimeClock extends Clock {
+
+    /** Instantiates a new User time clock. */
+    public UserTimeClock() {}
+
     @Override
     public long getTick() {
       return System.nanoTime();

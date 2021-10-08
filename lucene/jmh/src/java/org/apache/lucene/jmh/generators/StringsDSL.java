@@ -233,6 +233,13 @@ public class StringsDSL {
     /** Instantiates a new Realistic unicode generator builder. */
     RealisticUnicodeGeneratorBuilder() {}
 
+    /**
+     * Of length between rnd gen.
+     *
+     * @param minLength the min length
+     * @param maxLength the max length
+     * @return the rnd gen
+     */
     public RndGen<String> ofLengthBetween(int minLength, int maxLength) {
       RndGen<String> strings =
           new RndGen<>("Realistic Unicode") {
@@ -262,10 +269,22 @@ public class StringsDSL {
       return strings.describedAs("Realistic Unicode");
     }
 
+    /**
+     * Of length rnd gen.
+     *
+     * @param fixedLength the fixed length
+     * @return the rnd gen
+     */
     public RndGen<String> ofLength(int fixedLength) {
       return ofLengthBetween(fixedLength, fixedLength);
     }
 
+    /**
+     * Prefix realistic unicode generator builder.
+     *
+     * @param prefix the prefix
+     * @return the realistic unicode generator builder
+     */
     public RealisticUnicodeGeneratorBuilder prefix(String prefix) {
       this.prefix = prefix;
       return this;
@@ -333,6 +352,12 @@ public class StringsDSL {
       return this;
     }
 
+    /**
+     * Prefix string generator builder.
+     *
+     * @param prefix the prefix
+     * @return the string generator builder
+     */
     public StringGeneratorBuilder prefix(String prefix) {
       this.prefix = prefix;
       return this;
