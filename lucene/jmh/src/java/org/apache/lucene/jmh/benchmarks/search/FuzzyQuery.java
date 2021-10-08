@@ -16,14 +16,26 @@
  */
 package org.apache.lucene.jmh.benchmarks.search;
 
+import static org.apache.lucene.jmh.BaseBenchState.log;
 import static org.apache.lucene.jmh.generators.Docs.docs;
 import static org.apache.lucene.jmh.generators.SourceDSL.strings;
 
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
-import org.apache.lucene.document.Document;
+import java.util.concurrent.atomic.LongAdder;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.jmh.BaseBenchState;
+import org.apache.lucene.jmh.generators.BenchmarkRandomSource;
 import org.apache.lucene.jmh.generators.Distribution;
+import org.apache.lucene.jmh.generators.Docs;
+import org.apache.lucene.jmh.generators.Queries;
+import org.apache.lucene.jmh.generators.SplittableRandomGenerator;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.ByteBuffersDirectory;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -31,6 +43,7 @@ import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
@@ -41,45 +54,104 @@ import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.BenchmarkParams;
 
 /** The type. */
-@BenchmarkMode(Mode.SingleShotTime)
+@BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
 @Threads(1)
-@Warmup(time = 1, iterations = 1)
-@Measurement(time = 1, iterations = 1)
+@Warmup(time = 15, iterations = 10)
+@Measurement(time = 15, iterations = 10)
 @Fork(value = 1)
 @Timeout(time = 600)
 public class FuzzyQuery {
 
-  /** Instantiates a new Json faceting. */
-  public FuzzyQuery() {}
+  private static final boolean DEBUG = true;
+  public static final String SHORT_FIELD = "short";
+  public static final String LONG_PREFIX_SHORT_POST = "longPrefixShortPost";
+
+  private static LongAdder hits = new LongAdder();
+  private static LongAdder queries = new LongAdder();
+
+  static {
+    log("query index via FuzzyQuery with varying edit distance and constant prefix size");
+  }
+
+  /** Instantiates a new FuzzyQuery benchmark. */
+  public FuzzyQuery() {
+    // happy linter
+  }
 
   /** The type Bench state. */
   @State(Scope.Benchmark)
   public static class BenchState {
 
-    private Iterator<Document> it;
+    private IndexReader indexReader;
+    private IndexSearcher indexSearcher;
+
+    @Param("100000")
+    int numDocs;
+
+    @Param({"0", "15", "45"})
+    int prefix;
+
+    @Param({"1", "2"})
+    int editDistance;
+
+    private Iterator<Query> queryIterator;
 
     /** Instantiates a new Bench state. */
-    public BenchState() {}
+    public BenchState() {
+      // happy linter
+    }
 
     /**
-     * Sets .
+     * Benchmark setup.
      *
      * @param baseBenchState the base bench state
      * @throws Exception the exception
      */
     @Setup(Level.Trial)
     public void setup(BaseBenchState baseBenchState) throws Exception {
-      it =
+      BenchmarkRandomSource random =
+          new BenchmarkRandomSource(new SplittableRandomGenerator(BaseBenchState.random));
+      String prefixString = prefix > 0 ? strings().alpha().ofLength(prefix).generate(random) : "";
+      Docs docs =
           docs()
               .field(
-                  "field1",
+                  SHORT_FIELD,
                   strings()
-                      .realisticUnicode()
-                      .ofLengthBetween(2, 8)
+                      .alpha()
+                      .multi(50)
+                      .ofLengthBetween(2, 4)
                       .withDistribution(Distribution.UNIFORM))
-              .preGenerate(10);
-      it.next();
+              .field(
+                  SHORT_FIELD,
+                  strings()
+                      .alpha()
+                      .prefix(prefixString)
+                      .multi(50)
+                      .ofLengthBetween(2, 4)
+                      .withDistribution(Distribution.UNIFORM));
+      ByteBuffersDirectory directory = baseBenchState.directory("ram");
+
+      baseBenchState.index(directory, docs, numDocs, 30);
+
+      indexReader = DirectoryReader.open(directory);
+
+      indexSearcher = new IndexSearcher(indexReader);
+
+      Queries queryGen =
+          Queries.queries(
+              () ->
+                  new org.apache.lucene.search.FuzzyQuery(
+                      new Term(
+                          SHORT_FIELD,
+                          strings()
+                              .alpha()
+                              .prefix(prefixString)
+                              .ofLengthBetween(2, 4)
+                              .generate(random)),
+                      editDistance));
+
+      queryIterator = queryGen.preGenerate(30);
     }
 
     /**
@@ -89,7 +161,13 @@ public class FuzzyQuery {
      * @throws Exception the exception
      */
     @TearDown(Level.Trial)
-    public void teardown(BenchmarkParams benchmarkParams) throws Exception {}
+    public void teardown(BenchmarkParams benchmarkParams) throws Exception {
+      if (DEBUG) {
+        log("hits per query: " + hits.sum() / queries.sum());
+      }
+
+      indexReader.close();
+    }
   }
 
   /**
@@ -100,8 +178,12 @@ public class FuzzyQuery {
    * @throws Exception the exception
    */
   @Benchmark
-  public Object orHighHigh(BenchState state) throws Exception {
-    //   String.valueOf(state.it.next());
-    return null;
+  public Object fuzzySearch(BenchState state) throws Exception {
+    TopDocs res = state.indexSearcher.search(state.queryIterator.next(), 10);
+    if (DEBUG) {
+      hits.add(res.totalHits.value);
+      queries.increment();
+    }
+    return res;
   }
 }
