@@ -225,6 +225,12 @@ public class StringsDSL {
       return this;
     }
 
+    /**
+     * With collector word list generator builder.
+     *
+     * @param collector the collector
+     * @return the word list generator builder
+     */
     public WordListGeneratorBuilder withCollector(RndCollector<String> collector) {
       this.strings.withCollector(collector);
       return this;

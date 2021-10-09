@@ -15,5 +15,5 @@
  * limitations under the License.
  */
 
-/** jmh */
-package org.apache.lucene.jmh;
+/** benchmarks */
+package org.apache.lucene.jmh.benchmarks;

@@ -255,6 +255,7 @@ public class SearchPerf {
      * Sets .
      *
      * @param benchmarkParams the benchmark params
+     * @param benchState the bench state
      * @throws Exception the exception
      */
     @Setup(Level.Trial)

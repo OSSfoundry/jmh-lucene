@@ -61,6 +61,7 @@ import org.openjdk.jmh.infra.BenchmarkParams;
 @State(Scope.Benchmark)
 public class BaseBenchState {
 
+  /** The constant DEBUG. */
   public static final boolean DEBUG = Boolean.getBoolean("debug");
 
   private static final long RANDOM_SEED = 6624420638116043983L;
@@ -279,6 +280,11 @@ public class BaseBenchState {
 
   private static boolean loggedSeed = false;
 
+  /**
+   * Gets init randome seed.
+   *
+   * @return the init randome seed
+   */
   public static Long getInitRandomeSeed() {
     Long seed = Long.getLong("lucene.bench.seed");
 

@@ -20,27 +20,53 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.lucene.jmh.generators.RandomnessSource;
 
+/**
+ * The type Rnd collector.
+ *
+ * @param <T> the type parameter
+ */
 public class RndCollector<T> {
 
   private final int max;
   private final RandomnessSource random;
   private List<T> randomValues = new ArrayList<>();
 
+  /**
+   * Instantiates a new Rnd collector.
+   *
+   * @param random the random
+   * @param max the max
+   */
   public RndCollector(RandomnessSource random, int max) {
     this.max = max;
     this.random = random;
   }
 
+  /**
+   * Collect.
+   *
+   * @param val the val
+   */
   public void collect(T val) {
     if (randomValues.size() < max) {
       randomValues.add(val);
     }
   }
 
+  /**
+   * Gets values.
+   *
+   * @return the values
+   */
   public List<T> getValues() {
     return randomValues;
   }
 
+  /**
+   * Gets random value.
+   *
+   * @return the random value
+   */
   public T getRandomValue() {
     return randomValues.get((int) random.next(0, randomValues.size() - 1L));
   }
