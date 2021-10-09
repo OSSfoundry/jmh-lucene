@@ -74,7 +74,7 @@ final class Strings {
       int minCodePoint, int maxCodePoint, int minLength, int maxLength) {
     // generate strings of fixed number of code points then modify any that exceed max length
     return withCodePoints(minCodePoint, maxCodePoint, Generate.range(minLength, maxLength))
-            .map(reduceToSize(maxLength));
+        .map(reduceToSize(maxLength));
   }
 
   private static Function<String, String> reduceToSize(int maxLength) {

@@ -23,7 +23,9 @@ package org.apache.lucene.jmh.generators;
 public class FloatsDSL {
 
   /** Instantiates a new Floats dsl. */
-  public FloatsDSL() {}
+  public FloatsDSL() {
+    /* TODO document why this constructor is empty */
+  }
 
   /**
    * Generates Floats inclusively bounded below by Float.NEGATIVE_INFINITY and above by

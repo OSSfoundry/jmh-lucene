@@ -29,7 +29,9 @@ import java.util.stream.Collector;
 public class ListsDSL {
 
   /** Instantiates a new Lists dsl. */
-  public ListsDSL() {}
+  public ListsDSL() {
+    /* TODO document why this constructor is empty */
+  }
 
   /**
    * Creates an appropriate Collector for a type of List by specifying the Supplier used as a

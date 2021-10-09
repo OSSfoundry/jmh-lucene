@@ -39,10 +39,7 @@ public class BenchmarkRandomSource implements RandomnessSource {
 
   @Override
   public BenchmarkRandomSource withDistribution(Distribution distribution) {
-    if (this.distribution == null) {
-      this.distribution = distribution;
-    }
-
+    this.distribution = distribution;
     return this;
   }
 

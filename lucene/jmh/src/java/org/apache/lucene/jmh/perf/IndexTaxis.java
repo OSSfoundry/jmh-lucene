@@ -283,7 +283,7 @@ public class IndexTaxis {
 
               @Override
               public boolean hasNext() {
-                if (nextSet == false) {
+                if (!nextSet) {
                   setNextDoc();
                   nextSet = true;
                 }

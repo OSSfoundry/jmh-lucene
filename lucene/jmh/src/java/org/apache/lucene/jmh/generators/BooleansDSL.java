@@ -20,7 +20,9 @@ package org.apache.lucene.jmh.generators;
 public class BooleansDSL {
 
   /** Instantiates a new Booleans dsl. */
-  public BooleansDSL() {}
+  public BooleansDSL() {
+    /* TODO document why this constructor is empty */
+  }
 
   /**
    * Generates either true or false randomly.

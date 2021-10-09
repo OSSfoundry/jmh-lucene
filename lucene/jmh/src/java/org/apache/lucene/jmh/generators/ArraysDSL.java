@@ -26,7 +26,9 @@ import java.util.stream.Collectors;
 public class ArraysDSL {
 
   /** Instantiates a new Arrays dsl. */
-  public ArraysDSL() {}
+  public ArraysDSL() {
+    /* TODO document why this constructor is empty */
+  }
 
   /**
    * Creates an ArrayGeneratorBuilder of Integers that can be used to create an array Source

@@ -27,7 +27,9 @@ import java.util.Date;
 public class DatesDSL {
 
   /** Instantiates a new Dates dsl. */
-  public DatesDSL() {}
+  public DatesDSL() {
+    /* TODO document why this constructor is empty */
+  }
 
   /**
    * All RndGen.

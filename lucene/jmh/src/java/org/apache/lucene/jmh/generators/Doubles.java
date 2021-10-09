@@ -50,7 +50,7 @@ final class Doubles {
   static RndGen<Double> between(double min, double max) {
     checkArguments(min <= max, "Cannot have the maximum (%s) smaller than the min (%s)", max, min);
     double adjustedMax = max - min;
-    return (RndGen<Double>) fromZeroToOne().map(d -> (d * adjustedMax) + min);
+    return fromZeroToOne().map(d -> (d * adjustedMax) + min);
   }
 
   static RndGen<Double> range(long startInclusive, long endInclusive) {
@@ -59,6 +59,6 @@ final class Doubles {
 
   static RndGen<Double> range(
       long startInclusive, long endInclusive, Function<Long, Double> conversion) {
-    return (RndGen<Double>) Generate.longRange(startInclusive, endInclusive).map(conversion);
+    return Generate.longRange(startInclusive, endInclusive).map(conversion);
   }
 }

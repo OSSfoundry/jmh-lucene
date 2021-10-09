@@ -15,7 +15,7 @@
     limitations under the License.
  -->
 
-JMH-Benchmarks module
+JMH Benchmarks module
 =====================
 
 This module contains benchmarks written using [JMH](https://openjdk.java.net/projects/code-tools/jmh/) from OpenJDK.
@@ -23,85 +23,113 @@ Writing correct micro-benchmarks in Java (or another JVM language) is difficult 
 pitfalls (many due to compiler optimizations). JMH is a framework for running and analyzing benchmarks (micro or macro)
 written in Java (or another JVM language).
 
-* [JMH-Benchmarks module](#jmh-benchmarks-module)
+* [JMH Benchmarks module](#jmh-benchmarks-module)
   * [Running benchmarks](#running-benchmarks)
-    * [Using JMH with async profiler](#using-jmh-with-async-profiler)
+    * [Using JMH with Async-Profiler](#using-jmh-with-async-profiler)
+      * [OS Permissions for Async-Profiler](#os-permissions-for-async-profiler)
     * [Using JMH GC profiler](#using-jmh-gc-profiler)
     * [Using JMH Java Flight Recorder profiler](#using-jmh-java-flight-recorder-profiler)
-    * [JMH Options](#jmh-options)
+  * [JMH Options](#jmh-options)
 
 ## Running benchmarks
 
 If you want to set specific JMH flags or only run certain benchmarks, passing arguments via gradle tasks is cumbersome.
 The process has been simplified by the provided `jmh.sh` script.
 
-The default behavior is to run all benchmarks:
+The default behavior is to run all benchmarks.
 
-`./jmh.sh`
+```shell
+$ ./jmh.sh
+```
 
-Pass a pattern or name after the command to select the benchmarks:
+Pass a pattern or name after the command to select the benchmarks.
 
-`./jmh.sh FuzzyQuery`
+```shell
+$ ./jmh.sh BenchmarkClass
+$ ./jmh.sh BenchmarkClass.benchmarkMethod
+```
 
-Check which benchmarks match the provided pattern:
+List all benchmarks.
 
-`./jmh.sh -l FuzzyQuery`
+```shell
+$ ./jmh.sh -l
+```
 
-Run a specific test and overrides the number of forks, iterations and sets warm-up iterations to `2`:
+Check which benchmarks match the provided pattern.
 
-`./jmh.sh -f 2 -i 2 -wi 2 FuzzyQuery`
+```shell
+$ ./jmh.sh -l Bench
+```
 
-Run a specific test with async and GC profilers on Linux and flame graph output:
+Run a specific test and overrides the number of forks, iterations and sets warm-up iterations to `2`.
 
-`./jmh.sh -prof gc -prof async:libPath=/path/to/libasyncProfiler.so\;output=flamegraph\;dir=profile-results FuzzyQuery`
+```shell
+$ ./jmh.sh -f 2 -i 2 -wi 2 BenchmarkClass
+```
 
-### Using JMH with async profiler
+Run a specific test with async and GC profilers on Linux and flame graph output.
+
+```shell
+$ ./jmh.sh -prof gc -prof async:libPath=/path/to/libasyncProfiler.so\;output=flamegraph\;dir=profile-results BenchmarkClass
+```
+
+### Using JMH with Async-Profiler
 
 It's good practice to check profiler output for micro-benchmarks in order to verify that they represent the expected
 application behavior and measure what you expect to measure. Some example pitfalls include the use of expensive mocks or
 accidental inclusion of test setup code in the benchmarked code. JMH includes
 [async-profiler](https://github.com/jvm-profiling-tools/async-profiler) integration that makes this easy:
 
-`./jmh.sh -prof async:libPath=/path/to/libasyncProfiler.so\;dir=profile-results`
+```shell
+$ ./jmh.sh -prof async:libPath=/path/to/libasyncProfiler.so\;dir=profile-results
+```
 
 With flame graph output:
 
-`./jmh.sh -prof async:libPath=/path/to/libasyncProfiler.so\;output=flamegraph\;dir=profile-results`
+```shell
+$ ./jmh.sh -prof async:libPath=/path/to/libasyncProfiler.so\;output=flamegraph\;dir=profile-results
+```
 
 Simultaneous cpu, allocation and lock profiling with async profiler 2.0 and jfr output:
 
-`./jmh.sh -prof async:libPath=/path/to/libasyncProfiler.so\;output=jfr\;alloc\;lock\;dir=profile-results CloudIndexing`
+```shell
+$ ./jmh.sh -prof async:libPath=/path/to/libasyncProfiler.so\;output=jfr\;alloc\;lock\;dir=profile-results BenchmarkClass
+```
 
 A number of arguments can be passed to configure async profiler, run the following for a description:
 
-`./jmh.sh -prof async:help`
+```shell
+$ ./jmh.sh -prof async:help
+```
 
 You can also skip specifying libPath if you place the async profiler lib in a predefined location, such as one of the
 locations in the env variable `LD_LIBRARY_PATH` if it has been set (many Linux distributions set this env variable, Arch
 by default does not), or `/usr/lib` should work.
 
-#### OS Permissions for Async Profiler
+#### OS Permissions for Async-Profiler
 
 Async Profiler uses perf to profile native code in addition to Java code. It will need the following for the necessary
 access.
 
-```bash
-echo 0 > /proc/sys/kernel/kptr_restrict
-echo 1 > /proc/sys/kernel/perf_event_paranoid
+```shell
+$ echo 0 > /proc/sys/kernel/kptr_restrict
+$ echo 1 > /proc/sys/kernel/perf_event_paranoid
 ```
 
 or
 
-```bash
-sudo sysctl -w kernel.kptr_restrict=0
-sudo sysctl -w kernel.perf_event_paranoid=1
+```shell
+$ sudo sysctl -w kernel.kptr_restrict=0
+$ sudo sysctl -w kernel.perf_event_paranoid=1
 ```
 
 ### Using JMH GC profiler
 
 You can run a benchmark with `-prof gc` to measure its allocation rate:
 
-`./jmh.sh -prof gc:dir=profile-results`
+```shell
+$ ./jmh.sh -prof gc:dir=profile-results
+```
 
 Of particular importance is the `norm` alloc rates, which measure the allocations per operation rather than allocations
 per second.
@@ -110,7 +138,9 @@ per second.
 
 JMH comes with a variety of built-in profilers. Here is an example of using JFR:
 
-`./jmh.sh -prof jfr:dir=profile-results\;configName=jfr-profile.jfc FuzzyQuery`
+```shell
+$./jmh.sh -prof jfr:dir=profile-results\;configName=jfr-profile.jfc BenchmarkClass
+```
 
 In this example we point to the included configuration file with configName, but you could also do something like
 settings=default or settings=profile.

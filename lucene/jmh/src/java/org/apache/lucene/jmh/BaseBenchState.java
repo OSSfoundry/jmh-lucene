@@ -73,7 +73,7 @@ public class BaseBenchState {
 
   /** Instantiates a new Base bench state. */
   public BaseBenchState() {
-
+    /* TODO document why this constructor is empty */
   }
 
   /**
@@ -110,8 +110,13 @@ public class BaseBenchState {
       if (newLine) {
         System.err.println("");
       }
-      System.err.println(new StringBuilder().append(Instant.now()).append(" ")
-          .append(value.isEmpty() ? "" : "--> ").append(value).toString());
+      System.err.println(
+          new StringBuilder()
+              .append(Instant.now())
+              .append(" ")
+              .append(value.isEmpty() ? "" : "--> ")
+              .append(value)
+              .toString());
     }
   }
 
@@ -207,21 +212,16 @@ public class BaseBenchState {
         TimeUnit.SECONDS);
     for (int i = 0; i < docCount; i++) {
       executorService.submit(
-          new Runnable() {
+          () -> {
+            Document doc = docs.document();
+            // log("add doc " + doc);
 
-            @Override
-            public void run() {
+            meter.mark();
 
-              Document doc = docs.document();
-              // log("add doc " + doc);
-
-              meter.mark();
-
-              try {
-                writer.addDocument(doc);
-              } catch (Exception e) {
-                throw new RuntimeException(e);
-              }
+            try {
+              writer.addDocument(doc);
+            } catch (Exception e) {
+              throw new RuntimeException(e);
             }
           });
     }

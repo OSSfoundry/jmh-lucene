@@ -25,7 +25,9 @@ import static org.apache.lucene.jmh.generators.SourceDSL.checkArguments;
 public class LongsDSL {
 
   /** Instantiates a new Longs dsl. */
-  public LongsDSL() {}
+  public LongsDSL() {
+    /* TODO document why this constructor is empty */
+  }
 
   /**
    * Constructs a LongDomainBuilder object with an inclusive lower bound

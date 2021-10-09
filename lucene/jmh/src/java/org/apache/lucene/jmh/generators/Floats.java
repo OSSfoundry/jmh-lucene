@@ -39,16 +39,16 @@ final class Floats {
   }
 
   static RndGen<Float> fromZeroToOne() {
-    return (RndGen<Float>) Generate.range(0, 1 << 24).map(i -> i / (float) (1 << 24));
+    return Generate.range(0, 1 << 24).map(i -> i / (float) (1 << 24));
   }
 
   static RndGen<Float> between(float min, float max) {
     checkArguments(min <= max, "Cannot have the maximum (%s) smaller than the min (%s)", max, min);
     float adjustedMax = max - min;
-    return (RndGen<Float>) fromZeroToOne().map(f -> (f * adjustedMax) + min);
+    return fromZeroToOne().map(f -> (f * adjustedMax) + min);
   }
 
   private static RndGen<Float> range(int startInclusive, int endInclusive) {
-    return (RndGen<Float>) Generate.range(startInclusive, endInclusive).map(Float::intBitsToFloat);
+    return Generate.range(startInclusive, endInclusive).map(Float::intBitsToFloat);
   }
 }

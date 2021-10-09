@@ -23,7 +23,9 @@ package org.apache.lucene.jmh.generators;
 public class DoublesDSL {
 
   /** Instantiates a new Doubles dsl. */
-  public DoublesDSL() {}
+  public DoublesDSL() {
+    /* TODO document why this constructor is empty */
+  }
 
   /**
    * Generates Doubles inclusively bounded below by Double.NEGATIVE_INFINITY and above by

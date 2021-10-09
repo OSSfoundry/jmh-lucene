@@ -29,7 +29,7 @@ import org.apache.lucene.jmh.benchmarks.RndCollector;
 /**
  * The type RndGen.
  *
- * @param <T>  the type parameter
+ * @param <T> the type parameter
  */
 public abstract class RndGen<T> implements AsString<T> {
 
@@ -59,18 +59,21 @@ public abstract class RndGen<T> implements AsString<T> {
   /** The End. */
   protected long end;
 
-  private static final boolean COLLECT_COUNTS = Boolean.getBoolean("random.counts") || BaseBenchState.DEBUG;
+  private static final boolean COLLECT_COUNTS =
+      Boolean.getBoolean("random.counts") || BaseBenchState.DEBUG;
 
   static {
     log("random.counts output: " + COLLECT_COUNTS);
   }
 
-  private Describing description;
+  private Describing<T> description;
 
   private String collectKey;
   /** The constant COUNTS. */
-  public static final Map<String, RandomDataHistogram.Counts> COUNTS = new ConcurrentHashMap<>(64);
-  private RndCollector collector = null;
+  protected static final Map<String, RandomDataHistogram.Counts> COUNTS =
+      new ConcurrentHashMap<>(64);
+
+  private RndCollector<T> collector = null;
 
   /**
    * Counts report list.
@@ -86,10 +89,7 @@ public abstract class RndGen<T> implements AsString<T> {
               + RandomDataHistogram.MAX_TYPES_TO_COLLECT
               + COUNT_TYPES_ARE_TRACKED_LIMIT_WAS_REACHED);
     }
-    COUNTS.forEach(
-        (k, v) -> {
-          reports.add(v.print());
-        });
+    COUNTS.forEach((k, v) -> reports.add(v.print()));
     return reports;
   }
 
@@ -110,7 +110,7 @@ public abstract class RndGen<T> implements AsString<T> {
    *
    * @param description the description
    */
-  public RndGen(Describing description) {
+  public RndGen(Describing<T> description) {
     this.description = description;
   }
 
@@ -152,7 +152,13 @@ public abstract class RndGen<T> implements AsString<T> {
    */
   protected T processRndValue(T val, RandomnessSource in) {
     if (BaseBenchState.DEBUG) {
-      log("processRndValue RndGen=" + this + " Collector=" + (collector == null ? "none" : collector.getValues()) + " Val=" + val);
+      log(
+          "processRndValue RndGen="
+              + this
+              + " Collector="
+              + (collector == null ? "none" : collector.getValues())
+              + " Val="
+              + val);
     }
 
     if (collector != null) {
@@ -203,7 +209,7 @@ public abstract class RndGen<T> implements AsString<T> {
    * @return the RndGen
    */
   public RndGen<T> describedAs(AsString<T> asString) {
-    this.description = new DescribingGenerator(asString);
+    this.description = new DescribingGenerator<T>(asString);
     return this;
   }
 
@@ -242,7 +248,7 @@ public abstract class RndGen<T> implements AsString<T> {
   /**
    * Flat map RndGen.
    *
-   * @param <R>  the type parameter
+   * @param <R> the type parameter
    * @param mapper the mapper
    * @return the RndGen
    */
@@ -259,12 +265,13 @@ public abstract class RndGen<T> implements AsString<T> {
   /**
    * Map RndGen.
    *
-   * @param <R>  the type parameter
+   * @param <R> the type parameter
    * @param mapper the mapper
    * @return the RndGen
    */
+  @SuppressWarnings("unchecked")
   public <R> RndGen<R> map(Function<? super T, ? extends R> mapper) {
-    return new RndGen<R>(description) {
+    return new RndGen<R>((Describing<R>) description) {
       @Override
       public R gen(RandomnessSource in) {
         return mapper.apply(RndGen.this.generate(in));
@@ -293,7 +300,7 @@ public abstract class RndGen<T> implements AsString<T> {
    * @param collector the collector
    * @return the rnd gen
    */
-  public RndGen<T> withCollector(RndCollector collector) {
+  public RndGen<T> withCollector(RndCollector<T> collector) {
     if (BaseBenchState.DEBUG) {
       log("setting collector on " + this);
     }
@@ -336,13 +343,12 @@ public abstract class RndGen<T> implements AsString<T> {
   protected String getDescription() {
     return description.asString(null);
   }
-
 }
 
 /**
  * The interface Describing.
  *
- * @param <G>  the type parameter
+ * @param <G> the type parameter
  */
 interface Describing<G> {
 
@@ -358,7 +364,7 @@ interface Describing<G> {
 /**
  * The type Solr describing generator.
  *
- * @param <G>  the type parameter
+ * @param <G> the type parameter
  */
 class DescribingGenerator<G> implements Describing<G> {
 

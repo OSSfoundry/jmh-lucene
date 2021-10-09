@@ -14,12 +14,106 @@
     See the License for the specific language governing permissions and
     limitations under the License.
  -->
-
-[![JMH Paramaterized](https://github.com/mettallan/jmh-lucene/actions/workflows/jmh.yml/badge.svg)](https://github.com/mettallan/jmh-lucene/actions/workflows/jmh.yml)
-
-
 ![Lucene Logo](https://lucene.apache.org/theme/images/lucene/lucene_logo_green_300.png?v=0e493d7a) 
 
-Apache Lucene is a high-performance, full featured text search engine library
-written in Java. Here we add JMH.
+---
 
+# JMH module for Lucene
+
+> ### Benchmark Lucene with JMH
+> #### _profile, approximate luceneutil, compare and introspect_
+
+
+[![badge](https://img.shields.io/badge/lucene-JMH-blue?style=for-the-badge&logo=appveyor)]()
+
+- GameGenie 1990 benchmark power...
+
+***Combining Natures ...***
+
+
+
+[![JMH Paramaterized](https://github.com/mettallan/jmh-lucene/actions/workflows/jmh.yml/badge.svg)](https://github.com/mettallan/jmh-lucene/actions/workflows/jmh.yml) ![Docs Status](https://img.shields.io/badge/cool--factor-100%25-blue)
+
+
+
+> **Enables**
+
+- `luceneutil` benchmark approximation
+- `JMH` micro-benchmarks & introspection
+- `Data generation` churning & hand lending
+
+> **The Players**
+
+- Lucene <a href="http://recordit.co/" target="_blank">**Apache Lucene**</a>.
+- JMH <a href="https://github.com/chjj/ttystudio" target="_blank">**OpenJDK JMH**</a>.
+- luceneutil <a href="https://github.com/chjj/ttystudio" target="_blank">**luceneutil**</a>.
+
+
+---
+
+## Example
+
+```shell
+# fire away!
+
+$ ./jmh.sh blah blah
+```
+
+---
+
+### Clone
+
+- Clone this repo to your local machine using `git clone https://github.com/OSSfoundry/jmh-lucene.git`
+
+### Header
+
+- TBD:
+
+> first
+
+```shell
+$ ./jmh.sh blah blah
+$ ./jmh.sh blah blah
+```
+
+> and now
+
+```shell
+$ ./jmh.sh blah blah
+$ ./jmh.sh blah blah
+```
+
+---
+
+## Documentation
+
+![Docs Status](https://img.shields.io/badge/in--progress-10%25-blue)
+
+* JMH Module [README](lucene/jmh/README.md)
+
+  * Writing Benchmarks [writing-benchmarks.md](lucene/jmh/docs/writing-benchmarks.md)
+
+  * Random Data Gen [random-data-gen.md](lucene/jmh/docs/random-data-gen.md)
+
+## Tests
+
+TBD
+
+
+---
+
+## FAQ
+
+- **How do I do *specifically* so and so?**
+    - No problem! Just do this.
+
+
+
+---
+
+## License
+
+[![License](http://img.shields.io/:license-Apache2.0-blue.svg?style=flat-square)](http://badges.mit-license.org)
+
+- **[APACHE 2.0 license](https://opensource.org/licenses/Apache-2.0)**
+- OSS Delicious

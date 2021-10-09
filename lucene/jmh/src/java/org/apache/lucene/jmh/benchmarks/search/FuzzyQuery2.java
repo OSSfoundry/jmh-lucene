@@ -32,7 +32,6 @@ import org.apache.lucene.jmh.benchmarks.RndCollector;
 import org.apache.lucene.jmh.generators.BenchmarkRandomSource;
 import org.apache.lucene.jmh.generators.Distribution;
 import org.apache.lucene.jmh.generators.Docs;
-import org.apache.lucene.jmh.generators.Generate;
 import org.apache.lucene.jmh.generators.Queries;
 import org.apache.lucene.jmh.generators.SplittableRandomGenerator;
 import org.apache.lucene.search.IndexSearcher;
@@ -121,15 +120,16 @@ public class FuzzyQuery2 {
       BenchmarkRandomSource random =
           new BenchmarkRandomSource(new SplittableRandomGenerator(baseBenchState.getRandomSeed()));
 
-      RndCollector<String> collector = new RndCollector(random,15);
-      String prefixString = prefix > 0 ? strings().alpha().ofLength(prefix).describedAs("prefix").generate(random) : "";
+      RndCollector<String> collector = new RndCollector<>(random, 15);
 
       Docs docs =
           docs()
               .field(
                   SHORT_FIELD,
                   strings()
-                      .wordList().withDistribution(Distribution.ZIPFIAN).withCollector(collector)
+                      .wordList()
+                      .withDistribution(Distribution.ZIPFIAN)
+                      .withCollector(collector)
                       .multi(5));
 
       ByteBuffersDirectory directory = baseBenchState.directory("ram");
@@ -148,10 +148,7 @@ public class FuzzyQuery2 {
           Queries.queries(
               () ->
                   new org.apache.lucene.search.FuzzyQuery(
-                      new Term(
-                          SHORT_FIELD,
-                          collector.getRandomValue()),
-                      editDistance));
+                      new Term(SHORT_FIELD, collector.getRandomValue()), editDistance));
 
       queryIterator = queryGen.preGenerate(30);
     }

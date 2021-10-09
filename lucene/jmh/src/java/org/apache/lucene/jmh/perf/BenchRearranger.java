@@ -36,7 +36,9 @@ public class BenchRearranger {
   private static final String ID_FIELD = "id";
 
   /** Instantiates a new Bench rearranger. */
-  public BenchRearranger() {}
+  private BenchRearranger() {
+    /* TODO document why this constructor is empty */
+  }
 
   /**
    * Perform rearrange based on given arrangement * rearrange /100 gives how many large segments

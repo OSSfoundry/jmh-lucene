@@ -151,7 +151,8 @@ public class FuzzyQuery {
                           strings()
                               .alpha()
                               .prefix(prefixString)
-                              .ofLengthBetween(2, 4).describedAs("QueryTerm")
+                              .ofLengthBetween(2, 4)
+                              .describedAs("QueryTerm")
                               .generate(random)),
                       editDistance));
 

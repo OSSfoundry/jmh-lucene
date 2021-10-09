@@ -26,7 +26,9 @@ import java.util.Map;
 public class MapsDSL {
 
   /** Instantiates a new Maps dsl. */
-  public MapsDSL() {}
+  public MapsDSL() {
+    /* TODO document why this constructor is empty */
+  }
 
   /**
    * Creates a ListGeneratorBuilder.

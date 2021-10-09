@@ -57,11 +57,11 @@ jobs:
         token: ${{ secrets.TOKEN }}
         gist_id: a25f71683a6035b143888534c3d1577e
         gist_file_name: ${{ github.sha }}-${{ github.run_number }}.json
-        file_path: ./lucene/jmh/results.json
+        file_path: ./lucene/jmh/jmh-result.json
   
     - uses: actions/upload-artifact@v2
       with:
-        name: results.json
+        name: jmh-result.json
         path: ./lucene/jmh
     - uses: actions/checkout@v2
     
