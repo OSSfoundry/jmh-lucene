@@ -32,7 +32,7 @@
 
 
 
-[![JMH Paramaterized](https://github.com/mettallan/jmh-lucene/actions/workflows/jmh.yml/badge.svg)](https://github.com/mettallan/jmh-lucene/actions/workflows/jmh.yml) ![Docs Status](https://img.shields.io/badge/cool--factor-100%25-blue)
+[![Gradle Precommit](https://github.com/OSSfoundry/jmh-lucene/actions/workflows/gradle-precommit.yml/badge.svg)](https://github.com/OSSfoundry/jmh-lucene/actions/workflows/gradle-precommit.yml) [![JMH Paramaterized](https://github.com/mettallan/jmh-lucene/actions/workflows/jmh.yml/badge.svg)](https://github.com/mettallan/jmh-lucene/actions/workflows/jmh.yml) ![Docs Status](https://img.shields.io/badge/cool--factor-100%25-blue)
 
 
 

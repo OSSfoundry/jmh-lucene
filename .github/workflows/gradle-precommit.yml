@@ -1,9 +1,7 @@
 name: Gradle Precommit
 
-on: 
-  pull_request:
-    branches:
-    - '*'
+on:
+  workflow_dispatch:
 
 jobs:
   test:
