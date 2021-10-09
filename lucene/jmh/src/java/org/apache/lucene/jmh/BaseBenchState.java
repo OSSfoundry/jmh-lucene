@@ -42,6 +42,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.TieredMergePolicy;
 import org.apache.lucene.jmh.generators.Docs;
 import org.apache.lucene.jmh.generators.RndGen;
 import org.apache.lucene.store.ByteBuffersDirectory;
@@ -175,8 +176,11 @@ public class BaseBenchState {
 
     IndexWriterConfig iwc = new IndexWriterConfig(new WhitespaceAnalyzer());
     iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
-    iwc.setMaxBufferedDocs(500);
+    iwc.setMaxBufferedDocs(100);
     iwc.setRAMBufferSizeMB(Integer.MAX_VALUE);
+    TieredMergePolicy mergePolicy = new TieredMergePolicy();
+    mergePolicy.setSegmentsPerTier(30);
+    iwc.setMergePolicy(mergePolicy);
     writer = new IndexWriter(directory, iwc);
 
     ExecutorService executorService =

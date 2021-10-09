@@ -89,7 +89,7 @@ public class FuzzyQuery {
     private IndexSearcher indexSearcher;
 
     /** The Num docs. */
-    @Param("100000")
+    @Param("1000000")
     int numDocs;
 
     /** The Prefix. */
@@ -137,7 +137,7 @@ public class FuzzyQuery {
                       .withDistribution(Distribution.UNIFORM));
       ByteBuffersDirectory directory = baseBenchState.directory("ram");
 
-      baseBenchState.index(directory, docs, numDocs, 30);
+      baseBenchState.index(directory, docs, numDocs, 10);
 
       indexReader = DirectoryReader.open(directory);
 
