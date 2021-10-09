@@ -81,10 +81,10 @@ public class IntegersDSL {
   }
 
   /**
-   * Incrementing SolrGen. Always returns an integer greater than the previous one. You cannot count
+   * Incrementing RndGen. Always returns an integer greater than the previous one. You cannot count
    * on the increment being 1.
    *
-   * @return a SolrGen that returns an int greater than the previous
+   * @return a RndGen that returns an int greater than the previous
    */
   public RndGen<Integer> incrementing() {
     return new IncrementingIntegerRndGen();
@@ -95,14 +95,14 @@ public class IntegersDSL {
     /** The Increment. */
     AtomicInteger increment = new AtomicInteger();
 
-    /** Instantiates a new Incrementing integer solr gen. */
+    /** Instantiates a new Incrementing integer RndGen. */
     public IncrementingIntegerRndGen() {
       super();
       describedAs("Incrementing Int");
     }
 
     @Override
-    public Integer generate(RandomnessSource in) {
+    public Integer gen(RandomnessSource in) {
       return increment.getAndIncrement();
     }
   }
@@ -126,7 +126,7 @@ public class IntegersDSL {
     }
 
     @Override
-    public Integer generate(RandomnessSource in) {
+    public Integer gen(RandomnessSource in) {
       if (cardinalityStart == null) {
         cardinalityStart = Generate.range(0, Integer.MAX_VALUE - maxCardinality - 1).generate(in);
       }

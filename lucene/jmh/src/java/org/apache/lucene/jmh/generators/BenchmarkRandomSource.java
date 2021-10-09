@@ -53,7 +53,7 @@ public class BenchmarkRandomSource implements RandomnessSource {
 
   @Override
   public long next(long min, long max) {
-    switch (distribution) {
+    switch (distribution == null ? UNIFORM : distribution) {
       case UNIFORM:
         return rdg.nextLong(min, max);
       case ZIPFIAN:

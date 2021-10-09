@@ -43,7 +43,7 @@ public class Generate {
   public static <T> RndGen<T> constant(T constant) {
     return new RndGen<>() {
       @Override
-      public T generate(RandomnessSource in) {
+      public T gen(RandomnessSource in) {
         return constant;
       }
     };
@@ -64,10 +64,10 @@ public class Generate {
       }
 
       @Override
-      public Integer generate(RandomnessSource in) {
+      public Integer gen(RandomnessSource in) {
 
         int val = (int) (in.withDistribution(this.distribution)).next(startInclusive, endInclusive);
-        super.processCounts(val, in);
+        super.processRndValue(val, in);
         return val;
       }
     }.describedAs("Range:" + startInclusive + ':' + endInclusive);
@@ -88,9 +88,9 @@ public class Generate {
       }
 
       @Override
-      public Long generate(RandomnessSource in) {
+      public Long gen(RandomnessSource in) {
         long val = in.next(startInclusive, endInclusive);
-        super.processCounts(val, in);
+        super.processRndValue(val, in);
         return val;
       }
     };
@@ -107,7 +107,7 @@ public class Generate {
     return new RndGen<>() {
 
       @Override
-      public int[] generate(RandomnessSource td) {
+      public int[] gen(RandomnessSource td) {
         int size = sizes.generate(td);
         int[] is = new int[size];
         for (int i = 0; i != size; i++) {
@@ -194,7 +194,7 @@ public class Generate {
     RndGen<Integer> index = range(0, ts.size() - 1);
     return new RndGen<T>() {
       @Override
-      public T generate(RandomnessSource in) {
+      public T gen(RandomnessSource in) {
         return ts.get(index.generate(in));
       }
     };
@@ -215,7 +215,7 @@ public class Generate {
     RndGen<Integer> index = range(0, generators.length - 1);
     return new RndGen<T>() {
       @Override
-      public T generate(RandomnessSource in) {
+      public T gen(RandomnessSource in) {
         return generators[(index.generate(in))].generate(in);
       }
     };
@@ -326,7 +326,7 @@ public class Generate {
     }
 
     @Override
-    public T generate(RandomnessSource prng) {
+    public T gen(RandomnessSource prng) {
       return weightedMap.floorEntry(indexGen.generate(prng)).getValue().generate(prng);
     }
 

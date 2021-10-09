@@ -23,13 +23,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import org.apache.lucene.jmh.BaseBenchState;
+import org.apache.lucene.jmh.benchmarks.RndCollector;
 
 /**
  * The type RndGen.
  *
- * @param <T> the type parameter
+ * @param <T>  the type parameter
  */
-public class RndGen<T> implements AsString<T> {
+public abstract class RndGen<T> implements AsString<T> {
 
   /** The constant OPEN_PAREN. */
   public static final String OPEN_PAREN = " (";
@@ -57,17 +59,18 @@ public class RndGen<T> implements AsString<T> {
   /** The End. */
   protected long end;
 
-  private static final boolean COLLECT_COUNTS = Boolean.getBoolean("random.counts");
+  private static final boolean COLLECT_COUNTS = Boolean.getBoolean("random.counts") || BaseBenchState.DEBUG;
 
   static {
     log("random.counts output: " + COLLECT_COUNTS);
   }
 
-  private String description = "Unset";
+  private Describing description;
 
   private String collectKey;
   /** The constant COUNTS. */
   public static final Map<String, RandomDataHistogram.Counts> COUNTS = new ConcurrentHashMap<>(64);
+  private RndCollector collector = null;
 
   /**
    * Counts report list.
@@ -99,7 +102,15 @@ public class RndGen<T> implements AsString<T> {
    * @param description the description
    */
   public RndGen(String description) {
+    this.description = t -> description;
+  }
 
+  /**
+   * Instantiates a new Rnd gen.
+   *
+   * @param description the description
+   */
+  public RndGen(Describing description) {
     this.description = description;
   }
 
@@ -110,13 +121,27 @@ public class RndGen<T> implements AsString<T> {
    * @return the t
    */
   @SuppressWarnings("unchecked")
-  public T generate(RandomnessSource in) {
-
-    log("generate " + this + " from " + in);
-    T val = (T) Integer.valueOf((int) in.withDistribution(distribution).next(start, end));
-    processCounts(val, in);
+  public final T generate(RandomnessSource in) {
+    if (BaseBenchState.DEBUG) {
+      log("generate " + this + " from " + in.getClass().getSimpleName());
+    }
+    T val;
+    if (start == end && end == 0) {
+      val = gen(in);
+    } else {
+      val = (T) Integer.valueOf((int) in.withDistribution(distribution).next(start, end));
+    }
+    processRndValue(val, in);
     return val;
   }
+
+  /**
+   * Gen t.
+   *
+   * @param in the in
+   * @return the t
+   */
+  protected abstract T gen(RandomnessSource in);
 
   /**
    * Process counts t.
@@ -125,18 +150,25 @@ public class RndGen<T> implements AsString<T> {
    * @param in the in
    * @return the t
    */
-  protected T processCounts(T val, RandomnessSource in) {
-    // System.out.println("process counts " + this + " val:" + val);
+  protected T processRndValue(T val, RandomnessSource in) {
+    if (BaseBenchState.DEBUG) {
+      log("processRndValue RndGen=" + this + " Collector=" + (collector == null ? "none" : collector.getValues()) + " Val=" + val);
+    }
+
+    if (collector != null) {
+      collector.collect(val);
+    }
+
     if (COLLECT_COUNTS) {
-      collectKey = description;
-      if (collectKey == null || COUNTS.size() > RandomDataHistogram.MAX_TYPES_TO_COLLECT) {
+
+      if (description == null || COUNTS.size() > RandomDataHistogram.MAX_TYPES_TO_COLLECT) {
         return val;
       }
 
       // System.out.println("Add key " + key);
       RandomDataHistogram.Counts newCounts = null;
       RandomDataHistogram.Counts counts;
-      collectKey = description + OPEN_PAREN + in.getDistribution() + CLOSE_PAREN;
+      collectKey = description.asString(null) + OPEN_PAREN + in.getDistribution() + CLOSE_PAREN;
       counts = COUNTS.get(collectKey);
 
       if (counts == null) {
@@ -160,8 +192,7 @@ public class RndGen<T> implements AsString<T> {
    * @return the RndGen
    */
   public RndGen<T> describedAs(String description) {
-    // log("described as " + description);
-    this.description = description;
+    this.description = t -> description;
     return this;
   }
 
@@ -172,7 +203,8 @@ public class RndGen<T> implements AsString<T> {
    * @return the RndGen
    */
   public RndGen<T> describedAs(AsString<T> asString) {
-    return new DescribingGenerator<>(asString);
+    this.description = new DescribingGenerator(asString);
+    return this;
   }
 
   /**
@@ -195,8 +227,7 @@ public class RndGen<T> implements AsString<T> {
   public RndGen<T> mix(RndGen<T> rhs, int weight) {
     return new RndGen<T>() {
       @Override
-      public T generate(RandomnessSource in) {
-
+      public T gen(RandomnessSource in) {
         while (true) {
           long picked = in.next(0, 99);
           if (picked >= weight) {
@@ -211,14 +242,14 @@ public class RndGen<T> implements AsString<T> {
   /**
    * Flat map RndGen.
    *
-   * @param <R> the type parameter
+   * @param <R>  the type parameter
    * @param mapper the mapper
    * @return the RndGen
    */
   public <R> RndGen<R> flatMap(Function<? super T, RndGen<? extends R>> mapper) {
     return new RndGen<>() {
       @Override
-      public R generate(RandomnessSource in) {
+      public R gen(RandomnessSource in) {
         in = in.withDistribution(distribution);
         return mapper.apply(RndGen.this.generate(in)).generate(in);
       }
@@ -228,15 +259,15 @@ public class RndGen<T> implements AsString<T> {
   /**
    * Map RndGen.
    *
-   * @param <R> the type parameter
+   * @param <R>  the type parameter
    * @param mapper the mapper
    * @return the RndGen
    */
   public <R> RndGen<R> map(Function<? super T, ? extends R> mapper) {
     return new RndGen<R>(description) {
       @Override
-      public R generate(RandomnessSource in) {
-        return mapper.apply(RndGen.this.generate(in.withDistribution(distribution)));
+      public R gen(RandomnessSource in) {
+        return mapper.apply(RndGen.this.generate(in));
       }
     };
   }
@@ -257,13 +288,27 @@ public class RndGen<T> implements AsString<T> {
   }
 
   /**
+   * With collector rnd gen.
+   *
+   * @param collector the collector
+   * @return the rnd gen
+   */
+  public RndGen<T> withCollector(RndCollector collector) {
+    if (BaseBenchState.DEBUG) {
+      log("setting collector on " + this);
+    }
+    this.collector = collector;
+    return this;
+  }
+
+  /**
    * To string string.
    *
    * @return the string
    */
   @Override
   public String toString() {
-    return "SolrGen{" + ", desc=" + description + ", distribution=" + distribution + '}';
+    return "RndGen[desc=" + description.asString(null) + ", dist=" + distribution + ']';
   }
 
   @Override
@@ -289,16 +334,33 @@ public class RndGen<T> implements AsString<T> {
    * @return the description
    */
   protected String getDescription() {
-    return description;
+    return description.asString(null);
   }
+
+}
+
+/**
+ * The interface Describing.
+ *
+ * @param <G>  the type parameter
+ */
+interface Describing<G> {
+
+  /**
+   * As string string.
+   *
+   * @param t the t
+   * @return the string
+   */
+  String asString(G t);
 }
 
 /**
  * The type Solr describing generator.
  *
- * @param <G> the type parameter
+ * @param <G>  the type parameter
  */
-class DescribingGenerator<G> extends RndGen<G> {
+class DescribingGenerator<G> implements Describing<G> {
 
   private final AsString<G> toString;
 

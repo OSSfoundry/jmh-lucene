@@ -21,7 +21,7 @@ package org.apache.lucene.jmh.generators;
  *
  * @param <T> the type parameter
  */
-@FunctionalInterface
+
 public interface AsString<T> {
 
   /**

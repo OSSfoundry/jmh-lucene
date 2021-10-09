@@ -259,7 +259,7 @@ public class SearchPerf {
      */
     @Setup(Level.Trial)
     @SuppressForbidden(reason = "benchmark")
-    public void setup(BenchmarkParams benchmarkParams) throws Exception {
+    public void setup(BenchmarkParams benchmarkParams, BaseBenchState benchState) throws Exception {
 
       Directory dir0;
 
@@ -349,7 +349,9 @@ public class SearchPerf {
         vecfile = null;
       }
 
-      long randomSeed = BaseBenchState.getRandomSeed();
+      long randomSeed = benchState.getRandomSeed();
+
+      @SuppressWarnings("ReplacePseudorandomGenerator")
       final Random random = new Random(randomSeed);
 
       if (nrt) {

@@ -49,7 +49,7 @@ public class Docs {
 
   private final Queue<Document> docs = new ConcurrentLinkedQueue<>();
 
-  private final Map<String, Fld> fields = Collections.synchronizedMap(new HashMap<>(16));
+  private final Map<String, FieldDef> fields = Collections.synchronizedMap(new HashMap<>(16));
   private final BenchmarkRandomSource random;
 
   private ExecutorService executorService;
@@ -60,7 +60,7 @@ public class Docs {
    * @return the docs
    */
   public static Docs docs() {
-    return new Docs(BaseBenchState.getRandomSeed());
+    return new Docs(BaseBenchState.getInitRandomeSeed());
   }
 
   /**
@@ -155,8 +155,7 @@ public class Docs {
    */
   public Document document() {
     Document doc = new Document();
-
-    for (Map.Entry<String, Fld> entry : fields.entrySet()) {
+    for (Map.Entry<String, FieldDef> entry : fields.entrySet()) {
       doc.add(
           new TextField(
               entry.getKey(),
@@ -181,16 +180,14 @@ public class Docs {
       props = new HashSet<>(properties.length);
       props.addAll(Arrays.asList(properties));
     }
-    Fld fld = new Fld(generator, props);
-
-    fields.put(name, fld);
+    FieldDef fieldDef = new FieldDef(generator, props);
+    fields.put(name, fieldDef);
 
     return this;
   }
 
   /** The type Fld. */
-  public static class Fld {
-
+  public static class FieldDef {
     /** The Generator. */
     RndGen<?> generator;
     /** The Properties. */
@@ -202,7 +199,7 @@ public class Docs {
      * @param generator the generator
      * @param properties the properties
      */
-    public Fld(RndGen<?> generator, Set<Object> properties) {
+    public FieldDef(RndGen<?> generator, Set<Object> properties) {
       this.generator = generator;
       this.properties = properties;
     }

@@ -21,15 +21,18 @@ import static org.apache.lucene.jmh.generators.Docs.docs;
 import static org.apache.lucene.jmh.generators.SourceDSL.strings;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.jmh.BaseBenchState;
+import org.apache.lucene.jmh.benchmarks.RndCollector;
 import org.apache.lucene.jmh.generators.BenchmarkRandomSource;
 import org.apache.lucene.jmh.generators.Distribution;
 import org.apache.lucene.jmh.generators.Docs;
+import org.apache.lucene.jmh.generators.Generate;
 import org.apache.lucene.jmh.generators.Queries;
 import org.apache.lucene.jmh.generators.SplittableRandomGenerator;
 import org.apache.lucene.search.IndexSearcher;
@@ -61,7 +64,9 @@ import org.openjdk.jmh.infra.BenchmarkParams;
 @Measurement(time = 15, iterations = 10)
 @Fork(value = 1)
 @Timeout(time = 600)
-public class FuzzyQuery {
+public class FuzzyQuery2 {
+
+  private static final boolean DEBUG = true;
   /** The constant SHORT_FIELD. */
   public static final String SHORT_FIELD = "short";
   /** The constant LONG_PREFIX_SHORT_POST. */
@@ -75,7 +80,7 @@ public class FuzzyQuery {
   }
 
   /** Instantiates a new FuzzyQuery benchmark. */
-  public FuzzyQuery() {
+  public FuzzyQuery2() {
     // happy linter
   }
 
@@ -87,7 +92,7 @@ public class FuzzyQuery {
     private IndexSearcher indexSearcher;
 
     /** The Num docs. */
-    @Param("1000000")
+    @Param("1")
     int numDocs;
 
     /** The Prefix. */
@@ -116,24 +121,17 @@ public class FuzzyQuery {
       BenchmarkRandomSource random =
           new BenchmarkRandomSource(new SplittableRandomGenerator(baseBenchState.getRandomSeed()));
 
-      String prefixString = prefix > 0 ? strings().alpha().ofLength(prefix).generate(random) : "";
+      RndCollector<String> collector = new RndCollector(random,15);
+      String prefixString = prefix > 0 ? strings().alpha().ofLength(prefix).describedAs("prefix").generate(random) : "";
+
       Docs docs =
           docs()
               .field(
                   SHORT_FIELD,
                   strings()
-                      .alpha()
-                      .multi(50)
-                      .ofLengthBetween(2, 4)
-                      .withDistribution(Distribution.UNIFORM))
-              .field(
-                  SHORT_FIELD,
-                  strings()
-                      .alpha()
-                      .prefix(prefixString)
-                      .multi(50)
-                      .ofLengthBetween(2, 4)
-                      .withDistribution(Distribution.UNIFORM));
+                      .wordList().withDistribution(Distribution.ZIPFIAN).withCollector(collector)
+                      .multi(5));
+
       ByteBuffersDirectory directory = baseBenchState.directory("ram");
 
       baseBenchState.index(directory, docs, numDocs, 10);
@@ -142,17 +140,17 @@ public class FuzzyQuery {
 
       indexSearcher = new IndexSearcher(indexReader);
 
+      List<String> collected = collector.getValues();
+
+      log("collected=" + collected);
+
       Queries queryGen =
           Queries.queries(
               () ->
                   new org.apache.lucene.search.FuzzyQuery(
                       new Term(
                           SHORT_FIELD,
-                          strings()
-                              .alpha()
-                              .prefix(prefixString)
-                              .ofLengthBetween(2, 4).describedAs("QueryTerm")
-                              .generate(random)),
+                          collector.getRandomValue()),
                       editDistance));
 
       queryIterator = queryGen.preGenerate(30);
@@ -166,7 +164,7 @@ public class FuzzyQuery {
      */
     @TearDown(Level.Trial)
     public void teardown(BenchmarkParams benchmarkParams) throws Exception {
-      if (BaseBenchState.DEBUG) {
+      if (DEBUG) {
         log("hits per query: " + hits.sum() / queries.sum());
       }
 
@@ -184,7 +182,7 @@ public class FuzzyQuery {
   @Benchmark
   public Object fuzzySearch(BenchState state) throws Exception {
     TopDocs res = state.indexSearcher.search(state.queryIterator.next(), 10);
-    if (BaseBenchState.DEBUG) {
+    if (DEBUG) {
       hits.add(res.totalHits.value);
       queries.increment();
     }

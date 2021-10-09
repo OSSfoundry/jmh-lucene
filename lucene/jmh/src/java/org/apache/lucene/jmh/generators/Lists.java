@@ -94,7 +94,7 @@ public final class Lists {
 
     RndGen<List<T>> gen =
         new RndGen<>() {
-          public List<T> generate(RandomnessSource prng) {
+          public List<T> gen(RandomnessSource prng) {
             int size = sizes.generate(prng);
             return Stream.generate(() -> values.generate(prng)).limit(size).collect(collector);
           }

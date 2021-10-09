@@ -30,6 +30,7 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.SplittableRandom;
 import org.apache.lucene.jmh.BaseBenchState;
+import org.apache.lucene.jmh.benchmarks.RndCollector;
 
 /** The type Strings dsl. */
 public class StringsDSL {
@@ -58,8 +59,9 @@ public class StringsDSL {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    // ignore
-    Collections.shuffle(words, new Random(BaseBenchState.getRandomSeed()));
+
+    // noinspection ReplacePseudorandomGenerator
+    Collections.shuffle(words, new Random(BaseBenchState.getInitRandomeSeed()));
     WORD_SIZE = words.size();
   }
 
@@ -74,7 +76,7 @@ public class StringsDSL {
    * @return the word list generator builder
    */
   public WordListGeneratorBuilder wordList() {
-    return new WordListGeneratorBuilder(new WordListStringRndGen().describedAs("WordList Word"));
+    return new WordListGeneratorBuilder(new WordListStringRndGen());
   }
 
   /**
@@ -222,6 +224,11 @@ public class StringsDSL {
       this.strings.withDistribution(distribution);
       return this;
     }
+
+    public WordListGeneratorBuilder withCollector(RndCollector collector) {
+      this.strings.withCollector(collector);
+      return this;
+    }
   }
 
   /** The type Realistic unicode generator builder. */
@@ -244,7 +251,7 @@ public class StringsDSL {
       RndGen<String> strings =
           new RndGen<>("Realistic Unicode") {
             @Override
-            public String generate(RandomnessSource in) {
+            public String gen(RandomnessSource in) {
 
               int block =
                   integers()
@@ -255,7 +262,7 @@ public class StringsDSL {
               return prefix == null
                   ? ""
                   : prefix
-                      + processCounts(
+                      + processRndValue(
                           Strings.ofBoundedLengthStrings(
                                   blockStarts[block], blockEnds[block], minLength, maxLength)
                               .generate(in),
@@ -409,7 +416,7 @@ public class StringsDSL {
         strings =
             new RndGen<>(finalStrings.getDescription()) {
               @Override
-              public String generate(RandomnessSource in) {
+              public String gen(RandomnessSource in) {
                 return prefix + finalStrings.generate(in);
               }
             };
@@ -422,7 +429,7 @@ public class StringsDSL {
         gen =
             new RndGen<>() {
               @Override
-              public String generate(RandomnessSource in) {
+              public String gen(RandomnessSource in) {
                 Integer maxCard = maxCardinality.generate(in);
 
                 if (cardinalityStart == null) {
@@ -445,21 +452,16 @@ public class StringsDSL {
         if (multi > 1) {
           return multiStringGen(strings, multi);
         }
-        return strings.describedAs("string");
+        return strings;
       }
     }
   }
 
   private static RndGen<String> multiStringGen(RndGen<String> strings, int multi) {
-    return new RndGen<>() {
-
-      {
-        describedAs("MultiString");
-      }
-
+    return new RndGen<>("MultiString") {
       @Override
-      public String generate(RandomnessSource in) {
-        StringBuilder sb = new StringBuilder(64);
+      public String gen(RandomnessSource in) {
+        StringBuilder sb = new StringBuilder(multi * 3);
         for (int i = 0; i < multi; i++) {
           sb.append(strings.generate(in));
           if (i < multi - 1) {
@@ -475,16 +477,16 @@ public class StringsDSL {
 
     /** Instantiates a new Word list string RndGen. */
     public WordListStringRndGen() {
-      super();
+      super("WordList Word");
     }
 
     @Override
-    public String generate(RandomnessSource in) {
+    protected String gen(RandomnessSource in) {
       return words.get(
           integers()
               .between(0, WORD_SIZE - 1)
+              .withDistribution(distribution)
               .describedAs("WordList Index")
-              .withDistribution(this.getDistribution())
               .generate(in));
     }
   }

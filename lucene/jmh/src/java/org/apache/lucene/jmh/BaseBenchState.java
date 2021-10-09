@@ -26,6 +26,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -60,23 +61,27 @@ import org.openjdk.jmh.infra.BenchmarkParams;
 @State(Scope.Benchmark)
 public class BaseBenchState {
 
+  public static final boolean DEBUG = Boolean.getBoolean("debug");
+
   private static final long RANDOM_SEED = 6624420638116043983L;
 
-  /** The constant random. */
-  public static final SplittableRandom random = new SplittableRandom(getInitRandomeSeed());
+  /** The base random. */
+  public SplittableRandom random;
 
   private IndexWriter writer;
   private ByteBuffersDirectory directory;
 
   /** Instantiates a new Base bench state. */
-  public BaseBenchState() {}
+  public BaseBenchState() {
+
+  }
 
   /**
    * Gets random seed.
    *
    * @return the random seed
    */
-  public static Long getRandomSeed() {
+  public Long getRandomSeed() {
     return random.split().nextLong();
   }
 
@@ -105,7 +110,8 @@ public class BaseBenchState {
       if (newLine) {
         System.err.println("");
       }
-      System.err.println((value.isEmpty() ? "" : "--> ") + value);
+      System.err.println(new StringBuilder().append(Instant.now()).append(" ")
+          .append(value.isEmpty() ? "" : "--> ").append(value).toString());
     }
   }
 
@@ -119,7 +125,7 @@ public class BaseBenchState {
    */
   @Setup(Level.Trial)
   public void doSetup(BenchmarkParams benchmarkParams) {
-
+    random = new SplittableRandom(getInitRandomeSeed());
     workDir = System.getProperty("workBaseDir", "build/work");
   }
 
@@ -271,14 +277,20 @@ public class BaseBenchState {
     }
   }
 
-  private static Long getInitRandomeSeed() {
+  private static boolean loggedSeed = false;
+
+  public static Long getInitRandomeSeed() {
     Long seed = Long.getLong("lucene.bench.seed");
 
     if (seed == null) {
       seed = RANDOM_SEED;
     }
 
-    log("benchmark random seed: " + seed, true);
+    if (!loggedSeed) {
+      log("benchmark random seed: " + seed, true);
+    } else {
+      loggedSeed = true;
+    }
 
     return seed;
   }

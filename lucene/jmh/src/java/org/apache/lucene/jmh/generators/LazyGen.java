@@ -38,7 +38,7 @@ public class LazyGen<T> extends RndGen<T> {
   }
 
   @Override
-  public T generate(RandomnessSource in) {
+  public T gen(RandomnessSource in) {
     if (this.gen == null) {
       this.gen = genSupplier.get();
     }

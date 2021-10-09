@@ -72,17 +72,9 @@ final class Strings {
    */
   static RndGen<java.lang.String> ofBoundedLengthStrings(
       int minCodePoint, int maxCodePoint, int minLength, int maxLength) {
-    RndGen<String> gen =
-        withCodePoints(minCodePoint, maxCodePoint, Generate.range(minLength, maxLength))
+    // generate strings of fixed number of code points then modify any that exceed max length
+    return withCodePoints(minCodePoint, maxCodePoint, Generate.range(minLength, maxLength))
             .map(reduceToSize(maxLength));
-
-    return new RndGen<String>("Strings") {
-      @Override
-      public String generate(RandomnessSource in) {
-        // generate strings of fixed number of code points then modify any that exceed max length
-        return processCounts(gen.generate(in.withDistribution(distribution)), in);
-      }
-    };
   }
 
   private static Function<String, String> reduceToSize(int maxLength) {

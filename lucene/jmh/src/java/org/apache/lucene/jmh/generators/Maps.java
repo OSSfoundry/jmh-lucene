@@ -72,7 +72,7 @@ public class Maps {
     RndGen<Map<K, V>> gen =
         new RndGen<>() {
           @Override
-          public Map<K, V> generate(RandomnessSource prng) {
+          public Map<K, V> gen(RandomnessSource prng) {
             int size = sizes.generate(prng);
             return Stream.generate(() -> kg.generate(prng))
                 .distinct()
