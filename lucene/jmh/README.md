@@ -19,21 +19,20 @@
 JMH Benchmarks module
 =====================
 
+[![badge](https://img.shields.io/badge/lucene-JMH-blue?style=for-the-badge&logo=appveyor)]()
 ### Benchmark Lucene with JMH
 
- ![JMH-duke (1)](https://user-images.githubusercontent.com/448788/136683989-bef5618e-8026-4618-bb06-6c56df01cb5b.png) 
- ![plus](https://user-images.githubusercontent.com/448788/136684608-a792bd87-eec1-434f-9be4-10818551c647.png)
- ![L![plus](https://user-images.githubusercontent.com/448788/136684602-3f83cdb9-89ca-4b01-856c-6663723f582d.png)
- ucene Logo](https://lucene.apache.org/theme/images/lucene/lucene_logo_green_300.png?v=0e493d7a)
+![JMH-duke (1)](https://user-images.githubusercontent.com/448788/136683989-bef5618e-8026-4618-bb06-6c56df01cb5b.png)
+![plus](https://user-images.githubusercontent.com/448788/136684608-a792bd87-eec1-434f-9be4-10818551c647.png)
+![L![plus](https://user-images.githubusercontent.com/448788/136684602-3f83cdb9-89ca-4b01-856c-6663723f582d.png)
+ucene Logo](https://lucene.apache.org/theme/images/lucene/lucene_logo_green_300.png?v=0e493d7a)
 
-### _profile, approximate luceneutil, compare and introspect_
+#### _profile, approximate luceneutil, compare and introspect_
 
 ---
 
-[![badge](https://img.shields.io/badge/lucene-JMH-blue?style=for-the-badge&logo=appveyor)]()
 
-
-***A flexible, developer friendly benchmark framework ...***
+### A flexible, developer friendly, microbenchmark framework
 
 
 ![Docs Status](https://img.shields.io/badge/developer--first-tool-blue)
@@ -44,63 +43,103 @@ JMH Benchmarks module
 
 - **Luceneutil** benchmark approximation
 - **JMH** micro-benchmarks & introspection
-- **Random** data generation boilerplate
+- **Random Data** generation boilerplate
 
 ---
 
+## Table Of Contents
 * [JMH benchmark module](#jmh-benchmarks-module)
     * [Getting Started](#getting-started)
         * [Using JMH with Async-Profiler](#using-jmh-with-async-profiler)
             * [OS Permissions for Async-Profiler](#os-permissions-for-async-profiler)
         * [Using JMH GC profiler](#using-jmh-gc-profiler)
         * [Using JMH Java Flight Recorder profiler](#using-jmh-java-flight-recorder-profiler)
-    * [JMH Options](#jmh-options)
+    * [JMH Command Line Arguments](#jmh-command-line-arguments)
+    * [Writing JMH benchmarks](writing-jmh-benchmarks)
 
-### Getting Started
+#### Further Reading
+* Writing Lucene JMH Benchmarks [docs/writing-jmh-benchmarks.md](docs/writing-jmh-benchmarks.md)
+* The Random Data API [docs/random-data-gen.md](docs/random-data-gen.md)
+
+---
+
+
+## Getting Started
 
 Running **JMH** is handled via the `jmh.sh` shell script. This script uses **Gradle** to extract the correct classpath and sets
 a variety of helpful Java command line arguments and system properties. For the most part, the `jmh.sh` script will simply pass
-any arguments it receives on to **JMH**. You run the script from the directory.
+any arguments it receives on to **JMH**. You run the script from the root **JMH** module directory.
+
+![jmh-path](https://user-images.githubusercontent.com/448788/136686180-b1c6c8a7-70eb-40ed-886a-3aae10fe2526.png)
 
 The default behavior is to run all benchmarks.
 
 ```shell
 # run all benchmarks found in subdirectories
 $ ./jmh.sh
+
 ```
 
-Pass a pattern or name after the command to select the benchmarks.
+Pass a regex pattern or name after the command to select the benchmark(s) to run.
 
 ```shell
 $ ./jmh.sh BenchmarkClass
-$ ./jmh.sh BenchmarkClass.benchmarkMethod
 ```
 
-List all benchmarks.
+The argument `-l` will list all the available benchmarks.
 
 ```shell
 $ ./jmh.sh -l
 ```
 
-Check which benchmarks match the provided pattern.
+You can check which benchmarks match the provided pattern by specifying the pattern after `-l`. You can use the full
+benchmark class name, the simple class name, the benchmark method name, or a partial part of those.
+
 
 ```shell
+$ ./jmh.sh -l Ben
+```
+
+
+>_Further Pattern Examples._
+<details><summary>:speaking_head: 🅲🅻🅸🅲🅺 🄵🄾🅁 🅼🅞🆁🅴</summary>
+<p>
+
+```shell
+$ ./jmh.sh -l org.apache.lucene.jmh.benchmarks.search.BenchmarkClass
+$ ./jmh.sh -l BenchmarkClass
+$ ./jmh.sh -l BenchmarkClass.benchmethod
 $ ./jmh.sh -l Bench
+$ ./jmh.sh -l benchme
+
 ```
 
-Run a specific test and overrides the number of forks, iterations and sets warm-up iterations to `2`.
+</p>
+</details>
+
+You can pass `jmh.sh` a variety of arguments to override the benchmark specific defaults. Here we tell JMH to run the set of trial iterations twice,
+forking a new JVM for each trial. We also explicitly set the number of warmup iterations as well as the measured iterations to `2`.
 
 ```shell
-$ ./jmh.sh -f 2 -i 2 -wi 2 BenchmarkClass
+$ ./jmh.sh -f 2  -wi 2 -i 2 BenchmarkClass
 ```
 
-Run a specific test with async and GC profilers on Linux and flame graph output.
+
+### Formatting and Writing Results to Files
+
+Rather than just dumping benchmark results to the console, you can specify the `-rf` argument to control the output format,
+for example you can choose `csv` or `json`. The `-rff` argument will control the filename and output location.
 
 ```shell
-$ ./jmh.sh -prof gc -prof async:libPath=/path/to/libasyncProfiler.so\;output=flamegraph\;dir=profile-results BenchmarkClass
+# format output to json and write the file to the work directory, relative to the JMH working directory.
+$ ./jmh.sh BenchmarkClass -rf json -rff work/jmh-results.json
 ```
 
-### Using JMH with Async-Profiler
+> :eye_speech_bubble: _If you pass only the `-rf` argument, JMH will write out a file to the current working directory with the appropriate extension, e.g._  `jmh-results.csv`.
+
+## Using JMH Profilers
+
+### Using JMH with the Async-Profiler
 
 It's good practice to check profiler output for micro-benchmarks in order to verify that they represent the expected
 application behavior and measure what you expect to measure. Some example pitfalls include the use of expensive mocks or
@@ -109,6 +148,12 @@ accidental inclusion of test setup code in the benchmarked code. JMH includes
 
 ```shell
 $ ./jmh.sh -prof async:libPath=/path/to/libasyncProfiler.so\;dir=profile-results
+```
+
+Run a specific test with async and GC profilers on Linux and flame graph output.
+
+```shell
+$ ./jmh.sh -prof gc -prof async:libPath=/path/to/libasyncProfiler.so\;output=flamegraph\;dir=profile-results BenchmarkClass
 ```
 
 With flame graph output:
@@ -150,7 +195,7 @@ $ sudo sysctl -w kernel.kptr_restrict=0
 $ sudo sysctl -w kernel.perf_event_paranoid=1
 ```
 
-### Using JMH GC profiler
+### Using JMH with the GC Profiler
 
 You can run a benchmark with `-prof gc` to measure its allocation rate:
 
@@ -161,7 +206,7 @@ $ ./jmh.sh -prof gc:dir=profile-results
 Of particular importance is the `norm` alloc rates, which measure the allocations per operation rather than allocations
 per second.
 
-### Using JMH Java Flight Recorder profiler
+### Using JMH with the Java Flight Recorder Profiler
 
 JMH comes with a variety of built-in profilers. Here is an example of using JFR:
 
@@ -172,11 +217,28 @@ $./jmh.sh -prof jfr:dir=profile-results\;configName=jfr-profile.jfc BenchmarkCla
 In this example we point to the included configuration file with configName, but you could also do something like
 settings=default or settings=profile.
 
-### JMH Options
+## JMH Command Line Arguments
 
-Some common JMH options are:
+The JMH command line syntax is given as:
 
-```text
+```shell
+
+ Usage: ./jmh.sh [regexp*] [options]
+ [opt] means optional argument.
+ <opt> means required argument.
+ "+" means comma-separated list of values.
+ "time" arguments accept time suffixes, like "100ms".
+
+Command line options usually take precedence over annotations.
+
+```
+
+
+>_The Full List of JMH Arguments_
+<details><summary>:speaking_head: 🅲🅻🅸🅲🅺 🄵🄾🅁 🅼🅞🆁🅴</summary>
+<p>
+
+```shell
 
  Usage: ./jmh.sh [regexp*] [options]
  [opt] means optional argument.
@@ -333,7 +395,10 @@ Command line options usually take precedence over annotations.
                               for the warmup. 
 ```
 
-## Writing benchmarks
+</p>
+</details>
+
+## Writing JMH benchmarks
 
 For help in writing correct JMH tests, the best place to start is
 the [sample code](https://hg.openjdk.java.net/code-tools/jmh/file/tip/jmh-samples/src/main/java/org/openjdk/jmh/samples/)
