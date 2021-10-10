@@ -15,30 +15,57 @@
     limitations under the License.
  -->
 
+
 JMH Benchmarks module
 =====================
 
-This module contains benchmarks written using [JMH](https://openjdk.java.net/projects/code-tools/jmh/) from OpenJDK.
-Writing correct micro-benchmarks in Java (or another JVM language) is difficult and there are many non-obvious
-pitfalls (many due to compiler optimizations). JMH is a framework for running and analyzing benchmarks (micro or macro)
-written in Java (or another JVM language).
+### Benchmark Lucene with JMH
 
-* [JMH Benchmarks module](#jmh-benchmarks-module)
-  * [Running benchmarks](#running-benchmarks)
-    * [Using JMH with Async-Profiler](#using-jmh-with-async-profiler)
-      * [OS Permissions for Async-Profiler](#os-permissions-for-async-profiler)
-    * [Using JMH GC profiler](#using-jmh-gc-profiler)
-    * [Using JMH Java Flight Recorder profiler](#using-jmh-java-flight-recorder-profiler)
-  * [JMH Options](#jmh-options)
+ ![JMH-duke (1)](https://user-images.githubusercontent.com/448788/136683989-bef5618e-8026-4618-bb06-6c56df01cb5b.png) 
+ ![plus](https://user-images.githubusercontent.com/448788/136684608-a792bd87-eec1-434f-9be4-10818551c647.png)
+ ![L![plus](https://user-images.githubusercontent.com/448788/136684602-3f83cdb9-89ca-4b01-856c-6663723f582d.png)
+ ucene Logo](https://lucene.apache.org/theme/images/lucene/lucene_logo_green_300.png?v=0e493d7a)
 
-## Running benchmarks
+### _profile, approximate luceneutil, compare and introspect_
 
-If you want to set specific JMH flags or only run certain benchmarks, passing arguments via gradle tasks is cumbersome.
-The process has been simplified by the provided `jmh.sh` script.
+---
+
+[![badge](https://img.shields.io/badge/lucene-JMH-blue?style=for-the-badge&logo=appveyor)]()
+
+
+***A flexible, developer friendly benchmark framework ...***
+
+
+![Docs Status](https://img.shields.io/badge/developer--first-tool-blue)
+
+
+
+> **Features**
+
+- **Luceneutil** benchmark approximation
+- **JMH** micro-benchmarks & introspection
+- **Random** data generation boilerplate
+
+---
+
+* [JMH benchmark module](#jmh-benchmarks-module)
+    * [Getting Started](#getting-started)
+        * [Using JMH with Async-Profiler](#using-jmh-with-async-profiler)
+            * [OS Permissions for Async-Profiler](#os-permissions-for-async-profiler)
+        * [Using JMH GC profiler](#using-jmh-gc-profiler)
+        * [Using JMH Java Flight Recorder profiler](#using-jmh-java-flight-recorder-profiler)
+    * [JMH Options](#jmh-options)
+
+### Getting Started
+
+Running **JMH** is handled via the `jmh.sh` shell script. This script uses **Gradle** to extract the correct classpath and sets
+a variety of helpful Java command line arguments and system properties. For the most part, the `jmh.sh` script will simply pass
+any arguments it receives on to **JMH**. You run the script from the directory.
 
 The default behavior is to run all benchmarks.
 
 ```shell
+# run all benchmarks found in subdirectories
 $ ./jmh.sh
 ```
 
@@ -315,4 +342,3 @@ provided by the JMH project.
 JMH is highly configurable and users are encouraged to look through the samples for suggestions on what options are
 available. A good tutorial for using JMH can be
 found [here](http://tutorials.jenkov.com/java-performance/jmh.html#return-value-from-benchmark-method)
-
