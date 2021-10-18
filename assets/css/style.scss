@@ -1,0 +1,55 @@
+---
+---
+
+@import "{{ site.theme }}";
+code {
+  padding: 0.8rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font: 1rem Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  color: $code-text-color;
+  word-wrap: normal;
+  background-color: $code-bg-color;
+  border: solid 1px $border-color;
+  border-radius: 0.3rem;
+
+  > p {
+    font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+    direction: ltr;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    padding: 1em;
+    margin: .5em 0;
+    overflow: auto;
+    line-height: 1.5;
+    tab-size: 4;
+    hyphens: none;
+    font-weight: 550;
+    color: white;
+    background-color: #323232 !important;
+    border: #515151;
+    border-radius: 3px;
+    z-index: 8;
+    background-color: black;
+    border-color: #364850;
+    border-style: solid;
+    border-top-width: 25px;
+    border-bottom-width: 0px;
+    border-left-width: 0px;
+    border-right-width: 0px;
+    border-radius: 4px;
+    padding: 0px;
+    padding-top: 0px;
+    margin: 0px;
+    font-size: .85em !important;
+    line-height: 1.45;
+  }
+}
+
+
+.exe {
+ color: #A6E22E;
+}
